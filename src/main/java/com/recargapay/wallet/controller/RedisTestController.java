@@ -1,5 +1,6 @@
 package com.recargapay.wallet.controller;
 
+import lombok.val;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,14 +19,14 @@ public class RedisTestController {
 
     @GetMapping("/ping")
     public ResponseEntity<String> testRedis() {
-        String key = "test-key";
-        String value = "hello-from-redis";
+        val key = "test-key";
+        val value = "hello-from-redis";
 
         // Set
         redisTemplate.opsForValue().set(key, value);
 
         // Get
-        String result = redisTemplate.opsForValue().get(key);
+        val result = redisTemplate.opsForValue().get(key);
 
         if (value.equals(result)) {
             return ResponseEntity.ok("Redis is working! Value: " + result);
