@@ -11,23 +11,9 @@
     <groupId>com.recargapay.wallet</groupId>
     <artifactId>wallet-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>recargapay_wallet</name>
-    <description>recargapay_wallet</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
     <properties>
         <java.version>21</java.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -53,6 +39,15 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
         </dependency>
         <!--sqs aws-->
         <dependency>
@@ -98,8 +93,22 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                            <version>1.18.38</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
                         </path>
                     </annotationProcessorPaths>
+                    <compilerArgs>
+                        <compilerArg>-Amapstruct.defaultComponentModel=spring</compilerArg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>

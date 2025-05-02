@@ -1,13 +1,15 @@
 services:
   mysql:
-    image: mysql:latest
+    image: mysql:8.0.34
     environment:
-      - 'MYSQL_DATABASE=mydatabase'
-      - 'MYSQL_PASSWORD=secret'
+      - 'MYSQL_DATABASE=recargapay'
+      - 'MYSQL_PASSWORD=password'
       - 'MYSQL_ROOT_PASSWORD=verysecret'
-      - 'MYSQL_USER=myuser'
+      - 'MYSQL_USER=user'
     ports:
-      - '3306'
+      - '3306:3306'
+    volumes:
+      - ./config/script:/docker-entrypoint-initdb.d
   redis:
     image: redis:latest
     ports:
