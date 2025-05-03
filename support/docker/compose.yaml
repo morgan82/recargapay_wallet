@@ -13,8 +13,7 @@ services:
   redis:
     image: redis:latest
     ports:
-      - '6379'
-
+      - "6379:6379"
   localstack:
     image: localstack/localstack:latest
     ports:
@@ -23,6 +22,6 @@ services:
       - SERVICES=sqs,sns
       - DEBUG=1
       - LOCALSTACK_DISABLE_SSL=true
-#      - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/localstack:/etc/localstack/init/ready.d

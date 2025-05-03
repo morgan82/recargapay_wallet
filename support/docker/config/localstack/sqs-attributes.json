@@ -1,0 +1,8 @@
+{
+  "DelaySeconds": "5",
+  "MaximumMessageSize": "131072",
+  "MessageRetentionPeriod": "259200",
+  "ReceiveMessageWaitTimeSeconds": "20",
+  "RedrivePolicy": "{\"maxReceiveCount\":\"3\",\"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-1:000000000000:sqs-recargapay-local-cvu-created-dlq\"}",
+  "VisibilityTimeout": "30"
+}

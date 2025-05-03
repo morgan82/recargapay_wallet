@@ -19,15 +19,16 @@ alter table users
 -- wallets
 create table wallets
 (
-    balance      decimal(38, 2) not null,
+    balance      decimal(38, 2)                               not null,
     created_date datetime(6)                                  not null,
     id           BIGINT UNSIGNED                              not null auto_increment,
     updated_date datetime(6)                                  not null,
     user_id      BIGINT UNSIGNED                              not null,
     cvu          varchar(36),
-    uuid         varchar(36)    not null,
+    uuid         varchar(36)                                  not null,
     alias        varchar(100),
-    currency     varchar(255)   not null,
+    extra_info   varchar(300),
+    currency     varchar(255)                                 not null,
     status       enum ('ACTIVE','ERROR','PENDING','REJECTED') not null,
     primary key (id)
 ) engine = InnoDB;

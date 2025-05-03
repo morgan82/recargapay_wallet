@@ -1,11 +1,14 @@
 package com.recargapay.wallet.persistence.service;
 
 import com.recargapay.wallet.persistence.entity.Wallet;
+import com.recargapay.wallet.persistence.entity.WalletStatus;
 import com.recargapay.wallet.persistence.repository.WalletRepository;
 import com.recargapay.wallet.usecase.data.CurrencyType;
 import lombok.AllArgsConstructor;
+import lombok.val;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,12 +17,14 @@ import java.util.UUID;
 public class WalletService {
     private WalletRepository walletRepository;
 
-    public Optional<Wallet> fetchWalletByUserIfExist(UUID userUuid) {
-        return walletRepository.getByUser_Uuid(userUuid);
+    public Optional<Wallet> fetchWalletByUserIfExist(UUID userUuid, CurrencyType currency) {
+        return walletRepository.getByUser_UuidAndCurrency(userUuid, currency.name());
     }
 
     public boolean walletExistByUserAndCurrency(UUID userUuid, CurrencyType currency) {
-        long count = walletRepository.countWalletByUser_UuidAndCurrency(userUuid, currency.name());
+        val validStatus = List.of(WalletStatus.ACTIVE, WalletStatus.PENDING);
+
+        long count = walletRepository.countValidWalletByUser(userUuid, currency.name(), validStatus);
         return count > 0;
     }
 

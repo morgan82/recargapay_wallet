@@ -2,6 +2,7 @@ package com.recargapay.wallet.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.nonNull;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
@@ -62,9 +64,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGlobalException(Exception ex, HttpServletRequest request) {
+        log.error("Exception ", ex);
         HttpStatus internalServerError = HttpStatus.INTERNAL_SERVER_ERROR;
         val detail = ProblemDetail.forStatus(internalServerError);
-
         detail.setTitle("Unexpected Error");
         detail.setType(URI.create(getFullURL(request)));
         detail.setDetail(ex.getMessage());
