@@ -13,6 +13,7 @@ import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
+import java.net.URI;
 import java.util.concurrent.Executors;
 
 @Configuration
@@ -42,6 +43,7 @@ public class AWSConfig {
                 .asyncConfiguration(asyncConfiguration)
                 .httpClient(sdkAsyncHttpClient)
                 .credentialsProvider(provider)
+                .endpointOverride(URI.create("http://localhost:4566"))
                 .region(Region.EU_WEST_1)
                 .build();
     }
