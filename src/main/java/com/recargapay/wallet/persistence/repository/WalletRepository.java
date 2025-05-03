@@ -13,7 +13,6 @@ import java.util.UUID;
 
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
-    Optional<Wallet> getByUser_UuidAndCurrency(UUID userUuid, String currency);
 
     @Query("""
             select count(*) from Wallet w
@@ -26,4 +25,5 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
                                 @Param("statuses") List<WalletStatus> statuses
     );
 
+    Optional<Wallet> getByUser_UuidAndCurrencyAndStatus(UUID userUuid, String currency, WalletStatus status);
 }

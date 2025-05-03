@@ -17,8 +17,8 @@ import java.util.UUID;
 public class WalletService {
     private WalletRepository walletRepository;
 
-    public Optional<Wallet> fetchWalletByUserIfExist(UUID userUuid, CurrencyType currency) {
-        return walletRepository.getByUser_UuidAndCurrency(userUuid, currency.name());
+    public Optional<Wallet> fetchWalletByUserIfExist(UUID userUuid, CurrencyType currency, WalletStatus status) {
+        return walletRepository.getByUser_UuidAndCurrencyAndStatus(userUuid, currency.name(), status);
     }
 
     public boolean walletExistByUserAndCurrency(UUID userUuid, CurrencyType currency) {
