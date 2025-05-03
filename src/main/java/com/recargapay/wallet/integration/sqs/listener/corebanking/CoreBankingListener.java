@@ -19,7 +19,7 @@ public class CoreBankingListener {
 
     @SqsListener(value = "${sqs.cvu-created.name}")
     public void handleCvuCreatedEvent(CvuCreatedDTO payload, MessageHeaders headers, Acknowledgement ack) {
-        log.info("created cvu payload:{}", jsonHelper.serialize(payload));
+        log.info("WALLET_CVU_CREATED payload:{}", jsonHelper.serialize(payload));
         createWalletUC.finalizeWalletCreation(payload);
         ack.acknowledge();
     }

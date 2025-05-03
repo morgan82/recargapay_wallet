@@ -6,6 +6,7 @@ import com.recargapay.wallet.exception.WalletException;
 import com.recargapay.wallet.helper.JsonHelper;
 import com.recargapay.wallet.integration.http.corebanking.CoreBankingClient;
 import com.recargapay.wallet.integration.http.corebanking.data.CreateCvuRsDTO;
+import com.recargapay.wallet.integration.notification.NotificationService;
 import com.recargapay.wallet.integration.redis.RedisLockManager;
 import com.recargapay.wallet.integration.sqs.listener.corebanking.data.CvuCreatedDTO;
 import com.recargapay.wallet.mapper.WalletMapping;
@@ -33,6 +34,7 @@ public class CreateWalletUC {
     private final WalletMapping walletMapping;
     private final CoreBankingClient coreBankingClient;
     private final JsonHelper jsonHelper;
+    private final NotificationService notificationService;
 
     @Transactional
     public WalletDTO createWallet(CreateWalletRqDTO dto) {
@@ -52,7 +54,8 @@ public class CreateWalletUC {
                 val walletSaved = walletService.save(newWallet);
                 return walletMapping.toWalletDTO(walletSaved);
             } else {
-                val message = "Error, code:%s, details:%s".formatted(response.error().code(), response.error().details());
+                val message = "Error creating cvu, code:%s, details:%s".formatted(response.error().code(), response.error().details());
+                log.warn("{} user:{} currency:{}", message, userId, currency);
                 throw new WalletException(message, HttpStatus.CONFLICT, true);
             }
         }, () -> redisLockManager.releaseCreateWallet(userId, currency));
@@ -65,5 +68,8 @@ public class CreateWalletUC {
         walletMapping.updateWallet(wallet, dto);
         walletService.save(wallet);
         log.info("wallet creation done:{}", jsonHelper.serialize(wallet));
+        val email = userService.getUserByUuid(dto.userId()).getEmail();
+        String s = notificationService.sendWalletCompleted(email);
+        log.info("notification id:{} sending to:{}", s, email);
     }
 }
