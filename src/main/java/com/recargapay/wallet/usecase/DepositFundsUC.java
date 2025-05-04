@@ -6,6 +6,7 @@ import com.recargapay.wallet.integration.notification.NotificationService;
 import com.recargapay.wallet.integration.sqs.listener.corebanking.data.DepositArrivedDTO;
 import com.recargapay.wallet.mapper.TransactionMapper;
 import com.recargapay.wallet.persistence.entity.Transaction;
+import com.recargapay.wallet.persistence.entity.TransactionStatus;
 import com.recargapay.wallet.persistence.entity.Wallet;
 import com.recargapay.wallet.persistence.service.TransactionService;
 import com.recargapay.wallet.persistence.service.WalletService;
@@ -45,9 +46,11 @@ public class DepositFundsUC {
     }
 
     private void updateBalance(Wallet wallet, Transaction transaction) {
-        var newBalance = wallet.getBalance().add(transaction.getAmount());
-        wallet.setBalance(newBalance);
-        walletService.save(wallet);
+        if (TransactionStatus.COMPLETED.equals(transaction.getStatus())) {
+            var newBalance = wallet.getBalance().add(transaction.getAmount());
+            wallet.setBalance(newBalance);
+            walletService.save(wallet);
+        }
     }
 
     private boolean isDuplicateTx(Transaction transaction) {
