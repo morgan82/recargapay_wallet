@@ -5,11 +5,11 @@ import com.recargapay.wallet.controller.data.WalletDTO;
 import com.recargapay.wallet.exception.WalletException;
 import com.recargapay.wallet.helper.JsonHelper;
 import com.recargapay.wallet.integration.http.corebanking.CoreBankingClient;
-import com.recargapay.wallet.integration.http.corebanking.data.CreateCvuRsDTO;
+import com.recargapay.wallet.integration.http.corebanking.data.CoreBankingRsDTO;
 import com.recargapay.wallet.integration.notification.NotificationService;
 import com.recargapay.wallet.integration.redis.RedisLockManager;
 import com.recargapay.wallet.integration.sqs.listener.corebanking.data.CvuCreatedDTO;
-import com.recargapay.wallet.mapper.WalletMapping;
+import com.recargapay.wallet.mapper.WalletMapper;
 import com.recargapay.wallet.persistence.entity.WalletStatus;
 import com.recargapay.wallet.persistence.service.UserService;
 import com.recargapay.wallet.persistence.service.WalletService;
@@ -31,7 +31,7 @@ public class CreateWalletUC {
     private final RedisLockManager redisLockManager;
     private final UserService userService;
     private final WalletService walletService;
-    private final WalletMapping walletMapping;
+    private final WalletMapper walletMapper;
     private final CoreBankingClient coreBankingClient;
     private final JsonHelper jsonHelper;
     private final NotificationService notificationService;
@@ -49,12 +49,12 @@ public class CreateWalletUC {
             }
             val user = userService.getUserByUuid(userId);
             val response = coreBankingClient.createCvu(userId, dto.alias(), currency);
-            if (CreateCvuRsDTO.Status.OK.equals(response.status())) {
-                val newWallet = walletMapping.toNewWalletEntity(dto, user);
+            if (CoreBankingRsDTO.Status.OK.equals(response.status())) {
+                val newWallet = walletMapper.toNewWalletEntity(dto, user);
                 val walletSaved = walletService.save(newWallet);
-                return walletMapping.toWalletDTO(walletSaved);
+                return walletMapper.toWalletDTO(walletSaved);
             } else {
-                val message = "Error creating cvu, code:%s, details:%s".formatted(response.error().code(), response.error().details());
+                val message = "Error creating destinationCvu, code:%s, details:%s".formatted(response.error().code(), response.error().details());
                 log.warn("{} user:{} currency:{}", message, userId, currency);
                 throw new WalletException(message, HttpStatus.CONFLICT, true);
             }
@@ -65,11 +65,11 @@ public class CreateWalletUC {
     public void finalizeWalletCreation(CvuCreatedDTO dto) {
         val wallet = walletService.fetchWalletByUserIfExist(dto.userId(), dto.currency(), WalletStatus.PENDING)
                 .orElseThrow(() -> new WalletException("Wallet creation incomplete", HttpStatus.INTERNAL_SERVER_ERROR, false));
-        walletMapping.updateWallet(wallet, dto);
+        walletMapper.updateWallet(wallet, dto);
         walletService.save(wallet);
         log.info("wallet creation done:{}", jsonHelper.serialize(wallet));
-        val email = userService.getUserByUuid(dto.userId()).getEmail();
-        String s = notificationService.sendWalletCompleted(email);
-        log.info("notification id:{} sending to:{}", s, email);
+        val email = wallet.getUser().getEmail();
+        val id = notificationService.sendWalletCompleted(email);
+        log.info("WALLET_COMPLETE notification id:{} sending to:{}", id, email);
     }
 }

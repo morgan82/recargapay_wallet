@@ -35,7 +35,16 @@ public class RedisLockManager {
     public boolean setKeyValueIfNotExist(String key) {
         return tryLock(key);
     }
+    public boolean setKeyValueIfNotExist(String key, String value) {
+        return Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(key, value));
+    }
+    public String getValue(String key) {
+        return redisTemplate.opsForValue().get(key);
+    }
 
+    public boolean hasKey(String key) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
 
     public <T> T runWithLock(Supplier<T> action, Runnable unlock) {
         if (TransactionSynchronizationManager.isSynchronizationActive()) {

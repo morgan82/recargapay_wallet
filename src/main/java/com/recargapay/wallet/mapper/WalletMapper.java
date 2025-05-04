@@ -16,7 +16,7 @@ import static com.recargapay.wallet.persistence.entity.WalletStatus.ACTIVE;
 import static com.recargapay.wallet.persistence.entity.WalletStatus.PENDING;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR)
-public interface WalletMapping {
+public interface WalletMapper {
 
     @Mapping(target = "extraInfo", ignore = true)
     @Mapping(target = "updatedDate", ignore = true)

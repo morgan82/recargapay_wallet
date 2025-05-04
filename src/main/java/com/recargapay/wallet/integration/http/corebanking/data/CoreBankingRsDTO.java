@@ -1,6 +1,6 @@
 package com.recargapay.wallet.integration.http.corebanking.data;
 
-public record CreateCvuRsDTO(
+public record CoreBankingRsDTO(
         Status status,
         Error error
 ) {

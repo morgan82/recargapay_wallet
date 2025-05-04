@@ -20,10 +20,19 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
             and w.status in :statuses
             and w.currency = :currency
             """)
-    long countValidWalletByUser(@Param("userUuid") UUID userUuid,
-                                @Param("currency") String currency,
-                                @Param("statuses") List<WalletStatus> statuses
+    long countWalletBy(@Param("userUuid") UUID userUuid,
+                       @Param("currency") String currency,
+                       @Param("statuses") List<WalletStatus> statuses
     );
 
     Optional<Wallet> getByUser_UuidAndCurrencyAndStatus(UUID userUuid, String currency, WalletStatus status);
+
+    @Query("""
+            select w from Wallet w
+            where w.status = :status
+            and (w.cvu=:cvu or w.alias=:alias)
+            """)
+    Optional<Wallet> getBy(@Param("status") WalletStatus status,
+                           @Param("cvu") String cvu,
+                           @Param("alias") String alias);
 }
