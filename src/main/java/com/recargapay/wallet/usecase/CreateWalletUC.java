@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class CreateWalletUC {
     // Error message constants
-    private static final String WALLET_CREATION_IN_PROGRESS = "Wallet creation already in progress";
     private static final String WALLET_ALREADY_EXISTS_TEMPLATE = "User already has a wallet with currency:%s";
 
     private final RedisLockManager redisLockManager;
@@ -40,10 +39,7 @@ public class CreateWalletUC {
     public WalletDTO createWallet(CreateWalletRqDTO dto) {
         val userId = dto.userId();
         val currency = dto.currency();
-        return redisLockManager.runWithLock(() -> {
-            if (!redisLockManager.tryLockCreateWallet(userId, currency)) {
-                throw new WalletException(WALLET_CREATION_IN_PROGRESS, HttpStatus.CONFLICT, true);
-            }
+        return redisLockManager.runWithCreateWalletLock(userId, currency, () -> {
             if (walletService.walletExistByUserAndCurrency(userId, currency)) {
                 throw new WalletException(WALLET_ALREADY_EXISTS_TEMPLATE.formatted(currency), HttpStatus.CONFLICT, true);
             }
@@ -58,7 +54,7 @@ public class CreateWalletUC {
                 log.warn("{} user:{} currency:{}", message, userId, currency);
                 throw new WalletException(message, HttpStatus.CONFLICT, true);
             }
-        }, () -> redisLockManager.releaseCreateWallet(userId, currency));
+        });
     }
 
     @Transactional

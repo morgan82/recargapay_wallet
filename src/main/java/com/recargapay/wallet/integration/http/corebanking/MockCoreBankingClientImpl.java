@@ -148,10 +148,10 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
 
     @Getter
     enum Error {
-        ALIAS_EXIST("001", "destinationAlias already exist"),
+        ALIAS_EXIST("001", "alias already exist"),
         BLACK_LISTED_USER("002", "User blacklisted by BCRA"),
-        ALIAS_NOT_EXIST_FOR_CASH_IN("003", "destinationAlias not exist, to transfer or deposit"),
-        CVU_NOT_EXIST_FOR_CASH_IN("004", "destinationCvu not exist, to transfer or deposit");
+        ALIAS_NOT_EXIST_FOR_CASH_IN("003", "alias not exist, to transfer or deposit"),
+        CVU_NOT_EXIST_FOR_CASH_IN("004", "cvu not exist, to transfer or deposit");
         private final String code;
         private final String details;
 
