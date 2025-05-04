@@ -11,12 +11,17 @@ done
 echo "Creating SQS queues..."
 
 awslocal sqs create-queue   --queue-name sqs-recargapay-local-cvu-created-dlq   --endpoint-url http://localhost:4566   --attributes VisibilityTimeout=5   --region eu-west-1
-
 awslocal sqs create-queue \
   --queue-name sqs-recargapay-local-cvu-created \
   --attributes file:///etc/localstack/init/ready.d/sqs-attributes.json \
   --endpoint-url http://localhost:4566 \
   --region eu-west-1
 
+awslocal sqs create-queue   --queue-name sqs-recargapay-local-deposit-arrived-dlq   --endpoint-url http://localhost:4566   --attributes VisibilityTimeout=5   --region eu-west-1
+awslocal sqs create-queue \
+  --queue-name sqs-recargapay-local-deposit-arrived \
+  --attributes file:///etc/localstack/init/ready.d/sqs-attributes.json \
+  --endpoint-url http://localhost:4566 \
+  --region eu-west-1
 
 echo "LocalStack initialization completed."

@@ -19,16 +19,16 @@ alter table users
 -- wallets
 create table wallets
 (
-    balance      decimal(38, 2)                               not null,
+    balance      decimal(38, 2) not null,
     created_date datetime(6)                                  not null,
     id           BIGINT UNSIGNED                              not null auto_increment,
     updated_date datetime(6)                                  not null,
     user_id      BIGINT UNSIGNED                              not null,
     cvu          varchar(36),
-    uuid         varchar(36)                                  not null,
+    uuid         varchar(36)    not null,
     alias        varchar(100),
     extra_info   varchar(300),
-    currency     varchar(255)                                 not null,
+    currency     varchar(255)   not null,
     status       enum ('ACTIVE','ERROR','PENDING','REJECTED') not null,
     primary key (id)
 ) engine = InnoDB;
@@ -52,16 +52,19 @@ create table transactions
     wallet_id                BIGINT UNSIGNED                            not null,
     uuid                     varchar(36)    not null,
     destination_account_id   varchar(100)   not null,
-    origin_account_id        varchar(100)   not null,
+    external_tx_id           varchar(100)   not null,
+    source_account_id        varchar(100)   not null,
     extra_info               varchar(300),
     destination_account_type enum ('BANK_CBU','BANK_CVU','WALLET_UUID') not null,
-    origin_account_type      enum ('BANK_CBU','BANK_CVU','WALLET_UUID') not null,
+    source_account_type      enum ('BANK_CBU','BANK_CVU','WALLET_UUID') not null,
     status                   enum ('COMPLETED','FAILED','PENDING')      not null,
     transaction_type         enum ('DEPOSIT','TRANSFER','WITHDRAWAL')   not null,
     primary key (id)
 ) engine = InnoDB;
 alter table transactions
     add constraint uk_transaction_uuid unique (uuid);
+alter table transactions
+    add constraint uk_external_tx_id unique (external_tx_id, destination_account_id, source_account_id, wallet_id);
 alter table transactions
     add constraint fk_transaction_wallet foreign key (wallet_id) references wallets (id);
 

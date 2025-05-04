@@ -16,6 +16,12 @@ public class NotificationService {
         return this.sendNotification(rq).id();
     }
 
+    public String sendDepositComplete(String email) {
+        val rq = new NotificationRqDTO(email, NotificationType.DEPOSIT_COMPLETED);
+        return this.sendNotification(rq).id();
+    }
+
+    //private methods
     private NotificationRsDTO sendNotification(NotificationRqDTO request) {
         //sending notification
         return new NotificationRsDTO(UUID.randomUUID().toString());

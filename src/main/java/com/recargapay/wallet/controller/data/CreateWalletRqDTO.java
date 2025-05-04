@@ -20,7 +20,7 @@ public record CreateWalletRqDTO(
                 regexp = "^[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+){2}$",
                 message = "Alias must be in the format word.word.word with alphanumeric parts"
         )
-        @Schema(example = "test.test.rp")
+        @Schema(example = "test.1ars.rp")
         String alias
 ) {
 }

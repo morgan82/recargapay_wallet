@@ -3,7 +3,10 @@ docker compose up -d --force-recreate
 # Get the LocalStack container name dynamically using compose.yaml
 CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep localstack)
 
-QUEUES=("sqs-recargapay-local-cvu-created" "sqs-recargapay-local-cvu-created-dlq")
+QUEUES=("sqs-recargapay-local-cvu-created"
+"sqs-recargapay-local-cvu-created-dlq"
+"sqs-recargapay-local-deposit-arrived"
+"sqs-recargapay-local-deposit-arrived-dlq")
 
 AWS_REGION="eu-west-1"
 SQS_ENDPOINT="http://localhost:4566"

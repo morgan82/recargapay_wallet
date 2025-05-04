@@ -67,7 +67,7 @@ class WalletControllerTest {
         CreateWalletRqDTO invalidRequest = new CreateWalletRqDTO(
                 null,
                 null,
-                "invalid-alias"
+                "invalid-destinationAlias"
         );
 
         mockMvc.perform(post("/wallet")

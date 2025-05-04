@@ -21,10 +21,14 @@ public class WalletService {
         return walletRepository.getByUser_UuidAndCurrencyAndStatus(userUuid, currency.name(), status);
     }
 
+    public Optional<Wallet> fetchActiveWalletBy(String cvu, String alias) {
+        return walletRepository.getBy(WalletStatus.ACTIVE, cvu, alias);
+    }
+
     public boolean walletExistByUserAndCurrency(UUID userUuid, CurrencyType currency) {
         val validStatus = List.of(WalletStatus.ACTIVE, WalletStatus.PENDING);
 
-        long count = walletRepository.countValidWalletByUser(userUuid, currency.name(), validStatus);
+        long count = walletRepository.countWalletBy(userUuid, currency.name(), validStatus);
         return count > 0;
     }
 
