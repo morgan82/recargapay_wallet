@@ -10,7 +10,6 @@ import com.recargapay.wallet.integration.notification.NotificationService;
 import com.recargapay.wallet.integration.redis.RedisLockManager;
 import com.recargapay.wallet.integration.sqs.listener.corebanking.data.CvuCreatedDTO;
 import com.recargapay.wallet.mapper.WalletMapper;
-import com.recargapay.wallet.persistence.entity.WalletStatus;
 import com.recargapay.wallet.persistence.service.UserService;
 import com.recargapay.wallet.persistence.service.WalletService;
 import lombok.AllArgsConstructor;
@@ -59,7 +58,7 @@ public class CreateWalletUC {
 
     @Transactional
     public void finalizeWalletCreation(CvuCreatedDTO dto) {
-        val wallet = walletService.fetchWalletByUserIfExist(dto.userId(), dto.currency(), WalletStatus.PENDING)
+        val wallet = walletService.fetchPendingWalletBy(dto.userId(), dto.currency())
                 .orElseThrow(() -> new WalletException("Wallet creation incomplete", HttpStatus.INTERNAL_SERVER_ERROR, false));
         walletMapper.updateWallet(wallet, dto);
         walletService.save(wallet);

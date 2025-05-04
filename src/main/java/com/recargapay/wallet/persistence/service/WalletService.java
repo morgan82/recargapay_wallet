@@ -17,12 +17,12 @@ import java.util.UUID;
 public class WalletService {
     private WalletRepository walletRepository;
 
-    public Optional<Wallet> fetchWalletByUserIfExist(UUID userUuid, CurrencyType currency, WalletStatus status) {
-        return walletRepository.getByUser_UuidAndCurrencyAndStatus(userUuid, currency.name(), status);
+    public Optional<Wallet> fetchPendingWalletBy(UUID userUuid, CurrencyType currency) {
+        return walletRepository.getPendingBy(userUuid, currency.name());
     }
 
     public Optional<Wallet> fetchActiveWalletBy(String cvu, String alias) {
-        return walletRepository.getBy(WalletStatus.ACTIVE, cvu, alias);
+        return walletRepository.getActiveByCvuAndAlias(cvu, alias);
     }
 
     public boolean walletExistByUserAndCurrency(UUID userUuid, CurrencyType currency) {
@@ -30,6 +30,10 @@ public class WalletService {
 
         long count = walletRepository.countWalletBy(userUuid, currency.name(), validStatus);
         return count > 0;
+    }
+
+    public Optional<Wallet> fetchActiveWalletByUsernameAndCurrency(String username, CurrencyType currency) {
+        return walletRepository.getActiveByUsernameAndCurrency(username, currency.name());
     }
 
     public Wallet save(Wallet wallet) {

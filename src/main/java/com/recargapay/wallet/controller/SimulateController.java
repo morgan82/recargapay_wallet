@@ -3,6 +3,7 @@ package com.recargapay.wallet.controller;
 import com.recargapay.wallet.controller.data.DepositSimulatedDTO;
 import com.recargapay.wallet.exception.WalletException;
 import com.recargapay.wallet.integration.http.corebanking.CoreBankingClient;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -24,6 +25,14 @@ public class SimulateController {
     private final CoreBankingClient coreBankingClient;
 
     @PostMapping("/deposit")
+    @Operation(
+            summary = "Simulate a deposit (testing only)",
+            description = """
+                    This endpoint is intended for **testing purposes only**.
+                    It simulates a deposit manually initiated by a user.
+                    In a real scenario, deposit events should arrive **asynchronously**
+                    from the CoreBanking system via the **SQS queue: `sqs-recargapay-local-deposit-arrived`**.
+                    """)
     @RequestBody(
             content = @Content(
                     examples = @ExampleObject(

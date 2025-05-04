@@ -14,6 +14,15 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+
+  redis-init:
+    image: redis:latest
+    depends_on:
+      - redis
+    entrypoint: [ "/bin/sh", "-c", "/init/init.sh" ]
+    volumes:
+      - ./config/redis:/init
+
   localstack:
     image: localstack/localstack:latest
     ports:
