@@ -70,7 +70,7 @@ public class Transaction extends AuditableEntity {
 
     @Column(name = "extra_info", length = 300)
     private String extraInfo;
-    @Column(name = "external_tx_id", nullable = false, length = 100)
+    @Column(name = "external_tx_id", nullable = false, length = 150)
     private String externalTxId;
 
 }

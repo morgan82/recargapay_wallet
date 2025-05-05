@@ -49,7 +49,7 @@ public class Wallet extends AuditableEntity {
     @Column(length = 100, unique = true)
     private String alias;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DECIMAL(38,2) CHECK (balance >= 0)")
     private BigDecimal balance = BigDecimal.ZERO;
 
     @Column(nullable = false)

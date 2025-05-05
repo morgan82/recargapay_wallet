@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
+    Optional<Wallet> getByUuid(UUID uuid);
 
     @Query("""
             select count(*) from Wallet w
@@ -25,14 +26,30 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
                        @Param("statuses") List<WalletStatus> statuses
     );
 
-    Optional<Wallet> getByUser_UuidAndCurrencyAndStatus(UUID userUuid, String currency, WalletStatus status);
+    @Query("""
+            select w from Wallet w
+            where w.user.uuid = :userUuid
+            and w.currency =:currency
+            and w.status='PENDING'
+            """)
+    Optional<Wallet> getPendingBy(@Param("userUuid") UUID userUuid,
+                                  @Param("currency") String currency);
 
     @Query("""
             select w from Wallet w
-            where w.status = :status
-            and (w.cvu=:cvu or w.alias=:alias)
+            where (w.cvu=:cvu or w.alias=:alias)
+            and w.status='ACTIVE'
             """)
-    Optional<Wallet> getBy(@Param("status") WalletStatus status,
-                           @Param("cvu") String cvu,
-                           @Param("alias") String alias);
+    Optional<Wallet> getActiveByCvuOrAlias(@Param("cvu") String cvu,
+                                           @Param("alias") String alias);
+
+    @Query("""
+                select w from Wallet w
+                where w.user.username = :username
+                and w.currency = :currency
+                and w.status = 'ACTIVE'
+            """)
+    Optional<Wallet> getActiveByUsernameAndCurrency(@Param("username") String username,
+                                                    @Param("currency") String currency);
+
 }

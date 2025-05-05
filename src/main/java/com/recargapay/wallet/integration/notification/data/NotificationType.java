@@ -4,4 +4,5 @@ public enum NotificationType {
     WALLET_COMPLETED,
     WALLET_REJECTED,
     DEPOSIT_COMPLETED,
+    TRANSFER_COMPLETED,
 }

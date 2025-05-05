@@ -15,6 +15,7 @@ import java.util.UUID;
                 @UniqueConstraint(name = "uk_users_uuid", columnNames = "uuid"),
                 @UniqueConstraint(name = "uk_users_dni", columnNames = "dni"),
                 @UniqueConstraint(name = "uk_users_email", columnNames = "email"),
+                @UniqueConstraint(name = "uk_user_username", columnNames = "username")
         }
 
 )
@@ -41,5 +42,8 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false, unique = true, length = 50)
+    private String username;
 
 }

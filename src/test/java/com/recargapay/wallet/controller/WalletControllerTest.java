@@ -3,9 +3,11 @@ package com.recargapay.wallet.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.recargapay.wallet.controller.data.CreateWalletRqDTO;
 import com.recargapay.wallet.controller.data.WalletDTO;
-import com.recargapay.wallet.exception.GlobalExceptionHandler;
+import com.recargapay.wallet.mapper.WalletMapper;
 import com.recargapay.wallet.persistence.entity.WalletStatus;
+import com.recargapay.wallet.persistence.service.WalletService;
 import com.recargapay.wallet.usecase.CreateWalletUC;
+import com.recargapay.wallet.usecase.TransferFundsUC;
 import com.recargapay.wallet.usecase.data.CurrencyType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = {WalletController.class, GlobalExceptionHandler.class})
+@WebMvcTest(controllers = {WalletController.class})
 class WalletControllerTest {
 
     @Autowired
@@ -32,6 +34,15 @@ class WalletControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private TransferFundsUC transferFundsUC;
+
+    @MockitoBean
+    private WalletService walletService;
+
+    @MockitoBean
+    private WalletMapper walletMapper;
 
     @MockitoBean
     private CreateWalletUC createWalletUC;
@@ -52,7 +63,7 @@ class WalletControllerTest {
         mockMvc.perform(post("/wallet")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createWalletRqDTO)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(walletId.toString()))
                 .andExpect(jsonPath("$.cvu").value("1234567890"))

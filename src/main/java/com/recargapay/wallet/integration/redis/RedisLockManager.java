@@ -19,8 +19,15 @@ import java.util.function.Supplier;
 @AllArgsConstructor
 @Slf4j
 public class RedisLockManager {
-    private static final String WALLET_CREATION_IN_PROGRESS = "Wallet creation already in progress";
+    //mutex
     private final static String WALLET_CREATION_MUTEX_TEMPLATE = "CREATING::WALLET::%s::%s";
+    private final static String WALLET_DEBIT_MUTEX_TEMPLATE = "DEBIT::WALLET::%s";
+    //error messages
+    private static final String WALLET_CREATION_IN_PROGRESS = "Wallet creation already in progress";
+    private static final String WALLET_DEBIT_IN_PROGRESS = "Wallet debit already in progress";
+    //keys
+    private final static String TRANSFER_NUMBER_KEY = "TRANSFER::NUMBER";
+
     private static final int DEFAULT_TTL_SECONDS = 60;
     private static final String LOCKED_VALUE = "LOCKED";
     private final StringRedisTemplate redisTemplate;
@@ -41,6 +48,10 @@ public class RedisLockManager {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
+    public Long getNextTransferNumber() {
+        return redisTemplate.opsForValue().increment(TRANSFER_NUMBER_KEY);
+    }
+
     public <T> T runWithCreateWalletLock(UUID userUuid, CurrencyType currency, Supplier<T> action) {
         val key = WALLET_CREATION_MUTEX_TEMPLATE.formatted(currency.name(), userUuid);
         if (!tryLock(key, Duration.ofSeconds(DEFAULT_TTL_SECONDS))) {
@@ -49,8 +60,17 @@ public class RedisLockManager {
         return runWithLock(action, () -> releaseLock(key));
     }
 
+    public <T> T runWithDebitFundsLock(UUID walletUuid, Supplier<T> action) {
+        val key = WALLET_DEBIT_MUTEX_TEMPLATE.formatted(walletUuid);
+        if (!tryLock(key, Duration.ofSeconds(DEFAULT_TTL_SECONDS))) {
+            throw new WalletException(WALLET_DEBIT_IN_PROGRESS, HttpStatus.CONFLICT, true);
+        }
+        return runWithLock(action, () -> releaseLock(key));
+    }
 
-    public <T> T runWithLock(Supplier<T> action, Runnable unlock) {
+
+    //private methods
+    private <T> T runWithLock(Supplier<T> action, Runnable unlock) {
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
@@ -69,7 +89,6 @@ public class RedisLockManager {
         }
     }
 
-    //private methods
     private boolean tryLock(String key, Duration ttl) {
         val locked = redisTemplate.opsForValue().setIfAbsent(key, LOCKED_VALUE, ttl);
         log.debug("Key:{} locked:{}", key, locked);
