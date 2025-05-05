@@ -1,13 +1,16 @@
 package com.recargapay.wallet.persistence.service;
 
+import com.recargapay.wallet.exception.WalletException;
 import com.recargapay.wallet.persistence.entity.Wallet;
 import com.recargapay.wallet.persistence.entity.WalletStatus;
 import com.recargapay.wallet.persistence.repository.WalletRepository;
 import com.recargapay.wallet.usecase.data.CurrencyType;
 import lombok.AllArgsConstructor;
 import lombok.val;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,6 +19,11 @@ import java.util.UUID;
 @AllArgsConstructor
 public class WalletService {
     private WalletRepository walletRepository;
+
+    public Wallet fetchByUuidOrThrow(UUID uuid) {
+        return walletRepository.getByUuid(uuid)
+                .orElseThrow(() -> new WalletException("Wallet %s not found".formatted(uuid), HttpStatus.BAD_REQUEST, true));
+    }
 
     public Optional<Wallet> fetchPendingWalletBy(UUID userUuid, CurrencyType currency) {
         return walletRepository.getPendingBy(userUuid, currency.name());
@@ -39,4 +47,9 @@ public class WalletService {
     public Wallet save(Wallet wallet) {
         return walletRepository.save(wallet);
     }
+
+    public void save(Wallet... wallet) {
+        walletRepository.saveAll(Arrays.stream(wallet).toList());
+    }
+
 }

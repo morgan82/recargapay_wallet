@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public record CreateWalletRqDTO(
         @NotNull
-        @Schema(example = "98a7782e-1212-43ea-b8c6-cd3d3a15b021")
+        @Schema(example = "5e62c324-ab6b-496a-a310-efc53c30fe39")
         UUID userId,
         @NotNull
         @Schema(example = "ARS")
@@ -20,7 +20,7 @@ public record CreateWalletRqDTO(
                 regexp = "^[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+){2}$",
                 message = "Alias must be in the format word.word.word with alphanumeric parts"
         )
-        @Schema(example = "test.1ars.rp")
+        @Schema(example = "test.2ars.rp")
         String alias
 ) {
 }

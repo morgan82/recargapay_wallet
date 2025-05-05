@@ -21,6 +21,11 @@ public class NotificationService {
         return this.sendNotification(rq).id();
     }
 
+    public String sendTransferComplete(String email) {
+        val rq = new NotificationRqDTO(email, NotificationType.TRANSFER_COMPLETED);
+        return this.sendNotification(rq).id();
+    }
+
     //private methods
     private NotificationRsDTO sendNotification(NotificationRqDTO request) {
         //sending notification

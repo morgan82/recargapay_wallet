@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
+    Optional<Wallet> getByUuid(UUID uuid);
 
     @Query("""
             select count(*) from Wallet w
