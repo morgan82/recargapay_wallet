@@ -1,6 +1,11 @@
 package com.recargapay.wallet.persistence.service;
 
+import com.recargapay.wallet.controller.data.CreateWalletRqDTO;
+import com.recargapay.wallet.controller.data.WalletDTO;
 import com.recargapay.wallet.exception.WalletException;
+import com.recargapay.wallet.integration.sqs.listener.corebanking.data.CvuCreatedDTO;
+import com.recargapay.wallet.mapper.WalletMapper;
+import com.recargapay.wallet.persistence.entity.User;
 import com.recargapay.wallet.persistence.entity.Wallet;
 import com.recargapay.wallet.persistence.entity.WalletStatus;
 import com.recargapay.wallet.persistence.repository.WalletRepository;
@@ -19,6 +24,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class WalletService {
     private WalletRepository walletRepository;
+    private final WalletMapper walletMapper;
 
     public Wallet fetchByUuidOrThrow(UUID uuid) {
         return walletRepository.getByUuid(uuid)
@@ -30,7 +36,7 @@ public class WalletService {
     }
 
     public Optional<Wallet> fetchActiveWalletBy(String cvu, String alias) {
-        return walletRepository.getActiveByCvuAndAlias(cvu, alias);
+        return walletRepository.getActiveByCvuOrAlias(cvu, alias);
     }
 
     public boolean walletExistByUserAndCurrency(UUID userUuid, CurrencyType currency) {
@@ -44,8 +50,15 @@ public class WalletService {
         return walletRepository.getActiveByUsernameAndCurrency(username, currency.name());
     }
 
-    public Wallet save(Wallet wallet) {
-        return walletRepository.save(wallet);
+    public WalletDTO saveNew(CreateWalletRqDTO dto, User user) {
+        val newWalletEntity = walletMapper.toNewWalletEntity(dto, user);
+        val save = walletRepository.save(newWalletEntity);
+        return walletMapper.toWalletDTO(save);
+    }
+
+    public void updateWallet(Wallet wallet, CvuCreatedDTO dto) {
+        walletMapper.updateWallet(wallet, dto);
+        walletRepository.save(wallet);
     }
 
     public void save(Wallet... wallet) {

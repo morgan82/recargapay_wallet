@@ -40,8 +40,8 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
             where (w.cvu=:cvu or w.alias=:alias)
             and w.status='ACTIVE'
             """)
-    Optional<Wallet> getActiveByCvuAndAlias(@Param("cvu") String cvu,
-                                            @Param("alias") String alias);
+    Optional<Wallet> getActiveByCvuOrAlias(@Param("cvu") String cvu,
+                                           @Param("alias") String alias);
 
     @Query("""
                 select w from Wallet w

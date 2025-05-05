@@ -9,7 +9,6 @@ import com.recargapay.wallet.integration.http.corebanking.data.CoreBankingRsDTO;
 import com.recargapay.wallet.integration.notification.NotificationService;
 import com.recargapay.wallet.integration.redis.RedisLockManager;
 import com.recargapay.wallet.integration.sqs.listener.corebanking.data.CvuCreatedDTO;
-import com.recargapay.wallet.mapper.WalletMapper;
 import com.recargapay.wallet.persistence.entity.Wallet;
 import com.recargapay.wallet.persistence.service.UserService;
 import com.recargapay.wallet.persistence.service.WalletService;
@@ -33,7 +32,7 @@ public class CreateWalletUC {
     private final RedisLockManager redisLockManager;
     private final UserService userService;
     private final WalletService walletService;
-    private final WalletMapper walletMapper;
+
     private final CoreBankingClient coreBankingClient;
     private final JsonHelper jsonHelper;
     private final NotificationService notificationService;
@@ -47,9 +46,7 @@ public class CreateWalletUC {
             val user = userService.getUserByUuid(userId);
             val response = coreBankingClient.createCvu(userId, dto.alias(), currency);
             if (CoreBankingRsDTO.Status.OK.equals(response.status())) {
-                val newWallet = walletMapper.toNewWalletEntity(dto, user);
-                val walletSaved = walletService.save(newWallet);
-                return walletMapper.toWalletDTO(walletSaved);
+                return walletService.saveNew(dto, user);
             } else {
                 val message = "Error creating destinationCvu, code:%s, details:%s".formatted(response.error().code(), response.error().details());
                 log.warn("{} user:{} currency:{}", message, userId, currency);
@@ -62,8 +59,7 @@ public class CreateWalletUC {
     public void finalizeWalletCreation(CvuCreatedDTO dto) {
         val wallet = walletService.fetchPendingWalletBy(dto.userId(), dto.currency())
                 .orElseThrow(() -> new WalletException("Wallet creation incomplete", HttpStatus.INTERNAL_SERVER_ERROR, false));
-        walletMapper.updateWallet(wallet, dto);
-        walletService.save(wallet);
+        walletService.updateWallet(wallet, dto);
         log.info("wallet creation done:{}", jsonHelper.serialize(wallet));
         sendNotification(wallet);
     }
