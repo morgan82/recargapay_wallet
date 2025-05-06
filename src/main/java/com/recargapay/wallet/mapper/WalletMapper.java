@@ -1,7 +1,7 @@
 package com.recargapay.wallet.mapper;
 
 import com.recargapay.wallet.controller.data.CreateWalletRqDTO;
-import com.recargapay.wallet.controller.data.WalletDTO;
+import com.recargapay.wallet.controller.data.WalletRsDTO;
 import com.recargapay.wallet.integration.sqs.listener.corebanking.data.CvuCreatedDTO;
 import com.recargapay.wallet.persistence.entity.User;
 import com.recargapay.wallet.persistence.entity.Wallet;
@@ -9,7 +9,6 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
 import static com.recargapay.wallet.persistence.entity.WalletStatus.ACTIVE;
@@ -32,15 +31,15 @@ public interface WalletMapper {
     Wallet toNewWalletEntity(CreateWalletRqDTO dto, User user);
 
     @Mapping(target = "id", source = "uuid")
-    WalletDTO toWalletDTO(Wallet wallet);
+    WalletRsDTO toWalletDTO(Wallet wallet);
 
-    default void updateWallet(@MappingTarget Wallet wallet, CvuCreatedDTO dto) {
+    default void updateWallet(Wallet wallet, CvuCreatedDTO dto) {
         val status = dto.status();
         if (ACTIVE.equals(status) || PENDING.equals(status)) {
             wallet.setCvu(dto.cvu());
             wallet.setAlias(dto.alias());
         } else {
-            val extraInfo = "ERROR, Code:%s, Detail:%s".formatted(dto.error().code(), dto.error().details());
+            val extraInfo = "ERROR, Code:%s, Detail:%s".formatted(dto.coreBankingError().code(), dto.coreBankingError().details());
             wallet.setExtraInfo(StringUtils.truncate(extraInfo, 300));
         }
         wallet.setStatus(status);

@@ -5,7 +5,7 @@ import com.recargapay.wallet.persistence.entity.WalletStatus;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public record WalletDTO(
+public record WalletRsDTO(
         UUID id,
         String cvu,
         String alias,

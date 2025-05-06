@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record DepositSimulatedDTO(
+public record DepositSimulatedRqDTO(
         @NotBlank
         @Schema(example = "test.1ars.rp")
         String destinationAlias,

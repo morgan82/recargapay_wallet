@@ -27,6 +27,7 @@ public class RedisLockManager {
     private static final String WALLET_DEBIT_IN_PROGRESS = "Wallet debit already in progress";
     //keys
     private final static String TRANSFER_NUMBER_KEY = "TRANSFER::NUMBER";
+    private final static String WITHDRAWAL_NUMBER_KEY = "WITHDRAWAL::NUMBER";
 
     private static final int DEFAULT_TTL_SECONDS = 60;
     private static final String LOCKED_VALUE = "LOCKED";
@@ -50,6 +51,10 @@ public class RedisLockManager {
 
     public Long getNextTransferNumber() {
         return redisTemplate.opsForValue().increment(TRANSFER_NUMBER_KEY);
+    }
+
+    public Long getNextWithdrawalNumber() {
+        return redisTemplate.opsForValue().increment(WITHDRAWAL_NUMBER_KEY);
     }
 
     public <T> T runWithCreateWalletLock(UUID userUuid, CurrencyType currency, Supplier<T> action) {

@@ -35,6 +35,7 @@ create table wallets
     status       enum ('ACTIVE','ERROR','PENDING','REJECTED') not null,
     primary key (id)
 ) engine = InnoDB;
+
 alter table wallets
     add constraint uk_wallet_cvu unique (cvu);
 alter table wallets
@@ -55,7 +56,7 @@ create table transactions
     uuid                     varchar(36)    not null,
     destination_account_id   varchar(100)   not null,
     source_account_id        varchar(100)   not null,
-    external_tx_id           varchar(150)   not null,
+    external_tx_id           varchar(150),
     extra_info               varchar(300),
     destination_account_type enum ('BANK_CBU','BANK_CVU','WALLET_UUID') not null,
     source_account_type      enum ('BANK_CBU','BANK_CVU','WALLET_UUID') not null,
@@ -67,8 +68,7 @@ create table transactions
 alter table transactions
     add constraint uk_transaction_uuid unique (uuid);
 alter table transactions
-    add constraint uk_external_tx_id unique (external_tx_id, destination_account_id, source_account_id, wallet_id);
-alter table transactions
     add constraint fk_transaction_wallet foreign key (wallet_id) references wallets (id);
+
 
 

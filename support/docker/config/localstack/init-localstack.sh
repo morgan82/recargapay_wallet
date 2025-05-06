@@ -24,4 +24,12 @@ awslocal sqs create-queue \
   --endpoint-url http://localhost:4566 \
   --region eu-west-1
 
+awslocal sqs create-queue   --queue-name sqs-recargapay-local-withdrawal-complete-dlq   --endpoint-url http://localhost:4566   --attributes VisibilityTimeout=5   --region eu-west-1
+awslocal sqs create-queue \
+  --queue-name sqs-recargapay-local-withdrawal-complete \
+  --attributes file:///etc/localstack/init/ready.d/sqs-attributes.json \
+  --endpoint-url http://localhost:4566 \
+  --region eu-west-1
+
+
 echo "LocalStack initialization completed."
