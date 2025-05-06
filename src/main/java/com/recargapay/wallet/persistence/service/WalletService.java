@@ -1,7 +1,6 @@
 package com.recargapay.wallet.persistence.service;
 
 import com.recargapay.wallet.controller.data.CreateWalletRqDTO;
-import com.recargapay.wallet.controller.data.WalletDTO;
 import com.recargapay.wallet.exception.WalletException;
 import com.recargapay.wallet.integration.sqs.listener.corebanking.data.CvuCreatedDTO;
 import com.recargapay.wallet.mapper.WalletMapper;
@@ -23,7 +22,7 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class WalletService {
-    private WalletRepository walletRepository;
+    private final WalletRepository walletRepository;
     private final WalletMapper walletMapper;
 
     public Wallet fetchByUuidOrThrow(UUID uuid) {
@@ -50,10 +49,9 @@ public class WalletService {
         return walletRepository.getActiveByUsernameAndCurrency(username, currency.name());
     }
 
-    public WalletDTO saveNew(CreateWalletRqDTO dto, User user) {
+    public Wallet saveNew(CreateWalletRqDTO dto, User user) {
         val newWalletEntity = walletMapper.toNewWalletEntity(dto, user);
-        val save = walletRepository.save(newWalletEntity);
-        return walletMapper.toWalletDTO(save);
+        return walletRepository.save(newWalletEntity);
     }
 
     public void updateWallet(Wallet wallet, CvuCreatedDTO dto) {

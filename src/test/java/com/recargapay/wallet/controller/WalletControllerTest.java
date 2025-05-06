@@ -2,12 +2,13 @@ package com.recargapay.wallet.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.recargapay.wallet.controller.data.CreateWalletRqDTO;
-import com.recargapay.wallet.controller.data.WalletDTO;
+import com.recargapay.wallet.controller.data.WalletRsDTO;
 import com.recargapay.wallet.mapper.WalletMapper;
 import com.recargapay.wallet.persistence.entity.WalletStatus;
 import com.recargapay.wallet.persistence.service.WalletService;
 import com.recargapay.wallet.usecase.CreateWalletUC;
 import com.recargapay.wallet.usecase.TransferFundsUC;
+import com.recargapay.wallet.usecase.WithdrawalFundsUC;
 import com.recargapay.wallet.usecase.data.CurrencyType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -45,14 +46,18 @@ class WalletControllerTest {
     private WalletMapper walletMapper;
 
     @MockitoBean
+    private WithdrawalFundsUC withdrawalFundsUC;
+
+    @MockitoBean
     private CreateWalletUC createWalletUC;
+
 
     @Test
     void shouldCreateWalletSuccessfully_WhenGivenValidRequest() throws Exception {
         UUID walletId = UUID.randomUUID();
-        WalletDTO walletDTO = new WalletDTO(walletId, "1234567890", "user.wallet.test", BigDecimal.ZERO, "USD", WalletStatus.ACTIVE);
+        WalletRsDTO walletRsDTO = new WalletRsDTO(walletId, "1234567890", "user.wallet.test", BigDecimal.ZERO, "USD", WalletStatus.ACTIVE);
 
-        Mockito.when(createWalletUC.createWallet(any(CreateWalletRqDTO.class))).thenReturn(walletDTO);
+        Mockito.when(createWalletUC.createWallet(any(CreateWalletRqDTO.class))).thenReturn(walletRsDTO);
 
         CreateWalletRqDTO createWalletRqDTO = new CreateWalletRqDTO(
                 UUID.randomUUID(),
@@ -104,6 +109,6 @@ class WalletControllerTest {
                         .content(objectMapper.writeValueAsString(createWalletRqDTO)))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
-                .andExpect(jsonPath("$.detail").value("Runtime error"));
+                .andExpect(jsonPath("$.detail").value("500 Runtime error"));
     }
 }

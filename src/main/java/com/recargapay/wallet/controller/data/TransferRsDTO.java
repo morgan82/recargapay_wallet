@@ -5,7 +5,7 @@ import com.recargapay.wallet.persistence.entity.TransactionStatus;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public record TransferDTO(
+public record TransferRsDTO(
         UUID destinationWalletId,
         BigDecimal amount,
         TransactionStatus txStatus,

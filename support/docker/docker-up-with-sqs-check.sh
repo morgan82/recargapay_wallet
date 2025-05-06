@@ -6,7 +6,10 @@ CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep localstack)
 QUEUES=("sqs-recargapay-local-cvu-created"
 "sqs-recargapay-local-cvu-created-dlq"
 "sqs-recargapay-local-deposit-arrived"
-"sqs-recargapay-local-deposit-arrived-dlq")
+"sqs-recargapay-local-deposit-arrived-dlq"
+"sqs-recargapay-local-withdrawal-complete"
+"sqs-recargapay-local-withdrawal-complete-dlq"
+)
 
 AWS_REGION="eu-west-1"
 SQS_ENDPOINT="http://localhost:4566"

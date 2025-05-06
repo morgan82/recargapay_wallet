@@ -21,7 +21,6 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @Slf4j
 public class DepositFundsUC {
     private WalletService walletService;
-
     private TransactionService transactionService;
     private final NotificationService notificationService;
 
@@ -40,14 +39,13 @@ public class DepositFundsUC {
     //private methods
     private void sendNotification(Wallet wallet) {
         val email = wallet.getUser().getEmail();
-        val id = notificationService.sendDepositComplete(email);
+        val id = notificationService.notifyDepositCompleted(email);
         log.info("DEPOSIT_COMPLETE notification id:{} sending to:{}", id, email);
     }
 
     private void updateBalanceAndSave(Wallet wallet, Transaction transaction) {
         if (TransactionStatus.COMPLETED.equals(transaction.getStatus())) {
-            var newBalance = wallet.getBalance().add(transaction.getAmount());
-            wallet.setBalance(newBalance);
+            wallet.setBalance(wallet.getBalance().add(transaction.getAmount()));
             walletService.save(wallet);
         }
     }

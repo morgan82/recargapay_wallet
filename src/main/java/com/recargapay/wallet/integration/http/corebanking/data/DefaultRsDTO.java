@@ -1,6 +1,6 @@
 package com.recargapay.wallet.integration.http.corebanking.data;
 
-public record CoreBankingRsDTO(
+public record DefaultRsDTO(
         Status status,
         Error error
 ) {
@@ -11,7 +11,4 @@ public record CoreBankingRsDTO(
 
     }
 
-    public enum Status {
-        OK, ERROR
-    }
 }

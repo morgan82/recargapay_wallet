@@ -11,12 +11,8 @@ public record CvuCreatedDTO(
         String cbu,
         CurrencyType currency,
         WalletStatus status,
-        Error error,
+        CoreBankingError coreBankingError,
         UUID userId
 ) {
-    public record Error(
-            String details,
-            String code) {
 
-    }
 }

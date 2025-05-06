@@ -12,7 +12,7 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class UserService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public User getUserByUuid(UUID uuid) {
         return userRepository.getByUuid(uuid)

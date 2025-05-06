@@ -24,7 +24,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "transactions", uniqueConstraints = {
         @UniqueConstraint(name = "uk_transaction_uuid", columnNames = "uuid"),
-        @UniqueConstraint(name = "uk_external_tx_id", columnNames = {"external_tx_id", "destination_account_id", "source_account_id","wallet_id"})
 })
 @Getter
 @Setter
@@ -70,7 +69,7 @@ public class Transaction extends AuditableEntity {
 
     @Column(name = "extra_info", length = 300)
     private String extraInfo;
-    @Column(name = "external_tx_id", nullable = false, length = 150)
+    @Column(name = "external_tx_id", length = 150)
     private String externalTxId;
 
 }

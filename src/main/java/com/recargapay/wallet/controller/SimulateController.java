@@ -1,6 +1,6 @@
 package com.recargapay.wallet.controller;
 
-import com.recargapay.wallet.controller.data.DepositSimulatedDTO;
+import com.recargapay.wallet.controller.data.DepositSimulatedRqDTO;
 import com.recargapay.wallet.exception.WalletException;
 import com.recargapay.wallet.integration.http.corebanking.CoreBankingClient;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,7 +48,7 @@ public class SimulateController {
                     )
             )
     )
-    public void depositFunds(@org.springframework.web.bind.annotation.RequestBody DepositSimulatedDTO rq) {
+    public void depositFunds(@org.springframework.web.bind.annotation.RequestBody DepositSimulatedRqDTO rq) {
         if (isNotBlank(rq.sourceCvu()) == isNotBlank(rq.sourceCbu())) {//XOR
             throw new WalletException("You must provide exactly one of source CVU or source CBU", HttpStatus.BAD_REQUEST, true);
         }

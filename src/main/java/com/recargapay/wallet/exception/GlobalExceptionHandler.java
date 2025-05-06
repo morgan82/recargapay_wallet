@@ -2,6 +2,7 @@ package com.recargapay.wallet.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
@@ -52,6 +53,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(detail);
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ProblemDetail> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
+        val detail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        detail.setTitle("Validation Error");
+        detail.setType(URI.create(getFullURL(request)));
+        detail.setDetail(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(detail);
+    }
+
     @ExceptionHandler(WalletException.class)
     public ResponseEntity<ProblemDetail> handleWalletException(WalletException ex, HttpServletRequest request) {
         val detail = ProblemDetail.forStatus(ex.getStatusCode());
@@ -65,12 +75,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGlobalException(Exception ex, HttpServletRequest request) {
         log.error("Exception ", ex);
-        HttpStatus internalServerError = HttpStatus.INTERNAL_SERVER_ERROR;
-        val detail = ProblemDetail.forStatus(internalServerError);
-        detail.setTitle("Unexpected Error");
-        detail.setType(URI.create(getFullURL(request)));
-        detail.setDetail(ex.getMessage());
-        return ResponseEntity.status(internalServerError).body(detail);
+        val walletException = new WalletException(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, false);
+        return this.handleWalletException(walletException, request);
     }
 
     private String getFullURL(WebRequest request) {
