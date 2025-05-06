@@ -20,9 +20,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.recargapay.wallet.persistence.entity.TransactionStatus.COMPLETED;
+import static com.recargapay.wallet.persistence.entity.TransactionStatus.PENDING;
+import static java.util.Optional.ofNullable;
 
 @Service
 @AllArgsConstructor
@@ -73,5 +78,10 @@ public class TransactionService {
         val externalTxId = tx.getExternalTxId();
         val walletUuid = tx.getWallet().getUuid();
         return transactionRepository.existTx(walletUuid, externalTxId, destinationAId, sourceAId) > 0;
+    }
+
+    public BigDecimal sumAmountBy(UUID walletId, LocalDateTime at) {
+        val sumAmountBy = transactionRepository.sumAmountBy(walletId, List.of(COMPLETED, PENDING), at);
+        return ofNullable(sumAmountBy).orElse(BigDecimal.ZERO);
     }
 }

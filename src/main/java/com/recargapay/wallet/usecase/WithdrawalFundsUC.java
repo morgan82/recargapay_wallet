@@ -46,11 +46,14 @@ public class WithdrawalFundsUC {
     @Transactional
     public WithdrawalRsDTO createWithdrawal(@Valid WithdrawalFundsRqDTO dto, @NotNull UUID walletId) {
         return redisLockManager.runWithDebitFundsLock(walletId, () -> {
-            val sourceWallet = walletService.fetchByUuidOrThrow(walletId);
+            val sourceWallet = walletService.fetchActiveWalletByOrThrow(walletId);
             if (!canDebit(dto, sourceWallet)) {
                 throw new WalletException("Insufficient funds", HttpStatus.CONFLICT, true);
             }
             val destinationAccount = getDestinationAccount(dto);
+            if (destinationAccount.isRpUser() && destinationAccount.cvbu().equals(sourceWallet.getCvu())) {
+                throw new WalletException("Source and destination wallets must be different", HttpStatus.CONFLICT, true);
+            }
             val txId = UUID.randomUUID();
             callWdrlCoreBanking(dto, sourceWallet, txId, destinationAccount);
             val txWithdrawal = transactionService.saveWithdrawal(sourceWallet, destinationAccount, txId, dto.withdrawalAmount());

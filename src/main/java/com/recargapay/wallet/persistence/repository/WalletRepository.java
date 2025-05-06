@@ -44,6 +44,13 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
                                            @Param("alias") String alias);
 
     @Query("""
+            select w from Wallet w
+            where w.uuid =:walletUuid
+            and w.status='ACTIVE'
+            """)
+    Optional<Wallet> getActiveByUuid(@Param("walletUuid") UUID walletUuid);
+
+    @Query("""
                 select w from Wallet w
                 where w.user.username = :username
                 and w.currency = :currency
