@@ -7,6 +7,7 @@ import com.recargapay.wallet.mapper.WalletMapper;
 import com.recargapay.wallet.persistence.entity.WalletStatus;
 import com.recargapay.wallet.persistence.service.WalletService;
 import com.recargapay.wallet.usecase.CreateWalletUC;
+import com.recargapay.wallet.usecase.HistoricalBalanceUC;
 import com.recargapay.wallet.usecase.TransferFundsUC;
 import com.recargapay.wallet.usecase.WithdrawalFundsUC;
 import com.recargapay.wallet.usecase.data.CurrencyType;
@@ -51,6 +52,9 @@ class WalletControllerTest {
     @MockitoBean
     private CreateWalletUC createWalletUC;
 
+    @MockitoBean
+    private HistoricalBalanceUC historicalBalanceUC;
+
 
     @Test
     void shouldCreateWalletSuccessfully_WhenGivenValidRequest() throws Exception {
@@ -61,7 +65,7 @@ class WalletControllerTest {
 
         CreateWalletRqDTO createWalletRqDTO = new CreateWalletRqDTO(
                 UUID.randomUUID(),
-                CurrencyType.USD,
+                CurrencyType.ARS,
                 "user.wallet.test"
         );
 
@@ -100,7 +104,7 @@ class WalletControllerTest {
 
         CreateWalletRqDTO createWalletRqDTO = new CreateWalletRqDTO(
                 UUID.randomUUID(),
-                CurrencyType.USD,
+                CurrencyType.ARS,
                 "user.wallet.test"
         );
 

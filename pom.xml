@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.recargapay.wallet</groupId>
     <artifactId>wallet-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <properties>
         <java.version>21</java.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>

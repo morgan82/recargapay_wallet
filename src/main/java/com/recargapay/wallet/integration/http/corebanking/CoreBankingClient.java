@@ -6,6 +6,7 @@ import com.recargapay.wallet.integration.http.corebanking.data.DefaultRsDTO;
 import com.recargapay.wallet.usecase.data.CurrencyType;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.UUID;
 
 public interface CoreBankingClient {
@@ -18,4 +19,6 @@ public interface CoreBankingClient {
     AccountInfoRsDTO infoByAlias(String alias);
 
     AccountInfoRsDTO infoByCvbu(String cvuCbu);
+
+    Map<String, AccountInfoRsDTO> listAccounts();
 }

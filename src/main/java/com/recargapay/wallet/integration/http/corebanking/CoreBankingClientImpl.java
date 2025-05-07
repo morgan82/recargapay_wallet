@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -45,5 +46,10 @@ public class CoreBankingClientImpl implements CoreBankingClient {
     @Override
     public AccountInfoRsDTO infoByCvbu(String cvuCbu) {
         return null;
+    }
+
+    @Override
+    public Map<String, AccountInfoRsDTO> listAccounts() {
+        return Map.of();
     }
 }

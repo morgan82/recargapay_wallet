@@ -26,9 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 import java.util.UUID;
 
+import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.isAllBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -93,7 +94,7 @@ public class WithdrawalFundsUC {
     //private methods
     private void callWdrlCoreBanking(WithdrawalFundsRqDTO dto, Wallet sourceWallet, UUID txId, AccountInfoRsDTO destinationAccount) {
         val withdrawalRs = coreBankingClient.withdrawal(sourceWallet.getCvu(), txId, destinationAccount.cvbu(), dto.withdrawalAmount());
-        if (Objects.nonNull(withdrawalRs.error())) {
+        if (nonNull(withdrawalRs.error())) {
             throw new WalletException("Error code:%s, details:%s".formatted(withdrawalRs.error().code(), withdrawalRs.error().details()), HttpStatus.CONFLICT, true);
         }
     }
@@ -114,25 +115,26 @@ public class WithdrawalFundsUC {
     }
 
     private AccountInfoRsDTO getDestinationAccount(WithdrawalFundsRqDTO dto) {
-        AccountInfoRsDTO accountInfo;
-        if (isAllBlank(dto.destinationAlias(), dto.destinationCVU_CBU())) {
-            throw new WalletException("Either alias, CVU or CBU must be provided", HttpStatus.CONFLICT, true);
+        val alias = dto.destinationAlias();
+        val cvbu = dto.destinationCVU_CBU();
+        if (isAllBlank(alias, cvbu)) {
+            throw new WalletException("At least one of alias or CVU/CBU must be provided", HttpStatus.CONFLICT, true);
         }
-        if (isNotBlank(dto.destinationAlias())) {
-            accountInfo = coreBankingClient.infoByAlias(dto.destinationAlias());
-            if (Status.OK.equals(accountInfo.status())) {
-                return accountInfo;
-            } else {
-                throw new WalletException("Invalid Alias", HttpStatus.CONFLICT, true);
-            }
-        } else {
-            accountInfo = coreBankingClient.infoByCvbu(dto.destinationCVU_CBU());
-            if (Status.OK.equals(accountInfo.status())) {
-                return accountInfo;
-            } else {
-                throw new WalletException("Invalid CVU/CBU", HttpStatus.CONFLICT, true);
-            }
+        val accountInfoByAlias = isNotBlank(alias) ? coreBankingClient.infoByAlias(alias) : null;
+        val accountInfoByCVBU = isNotBlank(cvbu) ? coreBankingClient.infoByCvbu(cvbu) : null;
+        if (nonNull(accountInfoByAlias)
+                && nonNull(accountInfoByCVBU)
+                && !accountInfoByCVBU.equals(accountInfoByAlias)) {
+            throw new WalletException("Alias and CVU/CBU do not match for the same account.", HttpStatus.CONFLICT, true);
         }
+        val result = nonNull(accountInfoByAlias) ? accountInfoByAlias : accountInfoByCVBU;
+        return ofNullable(result)
+                .filter(r -> Status.OK.equals(r.status()))
+                .orElseThrow(() -> new WalletException(
+                        nonNull(accountInfoByAlias) ? "Invalid Alias" : "Invalid CVU/CBU",
+                        HttpStatus.CONFLICT,
+                        true));
+
     }
 
     private static boolean canDebit(WithdrawalFundsRqDTO dto, Wallet source) {

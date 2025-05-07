@@ -10,8 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -33,8 +38,22 @@ public class RedisLockManager {
     private static final String LOCKED_VALUE = "LOCKED";
     private final StringRedisTemplate redisTemplate;
 
-    public boolean setKeyValueIfNotExist(String key) {
-        return tryLock(key);
+
+    public Map<String, String> getAllEntries(String pattern) {
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (CollectionUtils.isEmpty(keys)) {
+            return Collections.emptyMap();
+        }
+        val values = redisTemplate.opsForValue().multiGet(keys);
+        val keyIterator = keys.iterator();
+        val valueIterator = values.iterator();
+
+        Map<String, String> result = new HashMap<>();
+        while (keyIterator.hasNext() && valueIterator.hasNext()) {
+            result.put(keyIterator.next(), valueIterator.next());
+        }
+
+        return result;
     }
 
     public boolean setKeyValueIfNotExist(String key, String value) {
@@ -97,12 +116,6 @@ public class RedisLockManager {
     private boolean tryLock(String key, Duration ttl) {
         val locked = redisTemplate.opsForValue().setIfAbsent(key, LOCKED_VALUE, ttl);
         log.debug("Key:{} locked:{}", key, locked);
-        return Boolean.TRUE.equals(locked);
-    }
-
-    private boolean tryLock(String key) {
-        val locked = redisTemplate.opsForValue().setIfAbsent(key, LOCKED_VALUE);
-        log.debug("Key:{} locked:{}, without ttl", key, locked);
         return Boolean.TRUE.equals(locked);
     }
 
