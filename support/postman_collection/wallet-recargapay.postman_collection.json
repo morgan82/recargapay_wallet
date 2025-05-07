@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "a42425bc-db7b-4e88-8e23-540e14a1c888",
+		"_postman_id": "3cdd7687-fac9-4fa8-98d5-00d0ceef855f",
 		"name": "wallet-recargapay",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "616926",
-		"_collection_link": "https://lunar-space-592554.postman.co/workspace/0fdea634-3345-4f34-af42-329cc1f7b7b9/collection/616926-a42425bc-db7b-4e88-8e23-540e14a1c888?action=share&source=collection_link&creator=616926"
+		"_collection_link": "https://lunar-space-592554.postman.co/workspace/test~0e0e1cf8-ad14-49b3-b5b7-64dec4c56bc3/collection/616926-3cdd7687-fac9-4fa8-98d5-00d0ceef855f?action=share&source=collection_link&creator=616926"
 	},
 	"item": [
 		{
@@ -212,7 +212,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"amount\": 1,\n  \"destination_alias\": \"test.1ars.rp\",\n  \"source_cbu\": \"2850590940090418135201\",\n  \"source_cvu\": null,\n  \"external_tx_id\": \"00000-00002\"\n}\n",
+							"raw": "{\n  \"amount\": 2,\n  \"destination_alias\": \"test.1ars.rp\",\n  \"source_cbu\": \"2850590940090418135201\",\n  \"source_cvu\": null,\n  \"external_tx_id\": \"00000-00003\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -429,6 +429,137 @@
 		{
 			"name": "withdrawals",
 			"item": [
+				{
+					"name": "concurrent",
+					"item": [
+						{
+							"name": "new-withdrawal-lopez2gomez-concurrent-1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"destination_alias\": \"{{gomez-alias}}\",\n  \"destination_cvu_cbu\": null,\n  \"withdrawal_amount\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/wallet/d349b326-2840-428b-8f56-1e95fe622db7/withdrawal",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"wallet",
+										"d349b326-2840-428b-8f56-1e95fe622db7",
+										"withdrawal"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "new-withdrawal-lopez2gomez-concurrent-2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"destination_alias\": \"{{gomez-alias}}\",\n  \"destination_cvu_cbu\": null,\n  \"withdrawal_amount\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/wallet/d349b326-2840-428b-8f56-1e95fe622db7/withdrawal",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"wallet",
+										"d349b326-2840-428b-8f56-1e95fe622db7",
+										"withdrawal"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "new-withdrawal-lopez2gomez-concurrent-2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"destination_alias\": \"{{gomez-alias}}\",\n  \"destination_cvu_cbu\": null,\n  \"withdrawal_amount\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/wallet/d349b326-2840-428b-8f56-1e95fe622db7/withdrawal",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"wallet",
+										"d349b326-2840-428b-8f56-1e95fe622db7",
+										"withdrawal"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
 				{
 					"name": "new-withdrawal-lopez2gomez",
 					"event": [
