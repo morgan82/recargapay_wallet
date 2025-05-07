@@ -1,5 +1,6 @@
 package com.recargapay.wallet.config;
 
+import com.recargapay.wallet.helper.JsonHelper;
 import com.recargapay.wallet.integration.http.corebanking.CoreBankingClient;
 import com.recargapay.wallet.integration.http.corebanking.MockCoreBankingClientImpl;
 import com.recargapay.wallet.integration.redis.RedisLockManager;
@@ -12,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class MockConfig {
     @Bean
     @ConditionalOnMissingBean
-    public CoreBankingClient mockCoreBankingClient(RedisLockManager redisLockManager, SqsService sqsService) {
-        return new MockCoreBankingClientImpl(redisLockManager, sqsService);
+    public CoreBankingClient mockCoreBankingClient(RedisLockManager redisLockManager, SqsService sqsService, JsonHelper jsonHelper) {
+        return new MockCoreBankingClientImpl(redisLockManager, sqsService, jsonHelper);
     }
 }

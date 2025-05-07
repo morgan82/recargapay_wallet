@@ -25,21 +25,21 @@ public class CoreBankingListener {
 
     @SqsListener(value = "${sqs.cvu-created.name}")
     public void handleCvuCreatedEvent(CvuCreatedDTO payload, MessageHeaders headers, Acknowledgement ack) {
-        log.info("WALLET_CVU_CREATED payload:{}", jsonHelper.serialize(payload));
+        log.info("WALLET_CVU_CREATED event payload:{}", jsonHelper.serialize(payload));
         createWalletUC.completeWalletCreation(payload);//handle business error, sending to dead letter queue
         ack.acknowledge();
     }
 
     @SqsListener(value = "${sqs.deposit-arrive.name}")
     public void handleDepositArrivedEvent(DepositArrivedDTO payload, MessageHeaders headers, Acknowledgement ack) {
-        log.info("DEPOSIT_ARRIVED payload:{}", jsonHelper.serialize(payload));
+        log.info("DEPOSIT_ARRIVED event payload:{}", jsonHelper.serialize(payload));
         depositFundsUC.processDeposit(payload);//handle business error, sending to dead letter queue
         ack.acknowledge();
     }
 
     @SqsListener(value = "${sqs.withdrawal-complete.name}")
     public void handleWithdrawalCompletedEvent(WithdrawalCompleteDTO payload, MessageHeaders headers, Acknowledgement ack) {
-        log.info("WITHDRAWAL_COMPLETED payload:{}", jsonHelper.serialize(payload));
+        log.info("WITHDRAWAL_COMPLETED event payload:{}", jsonHelper.serialize(payload));
         withdrawalFundsUC.completeWithdrawal(payload);//handle business error, sending to dead letter queue
         ack.acknowledge();
     }

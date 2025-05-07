@@ -1,6 +1,7 @@
 package com.recargapay.wallet.integration.http.corebanking;
 
 import com.recargapay.wallet.controller.data.DepositSimulatedRqDTO;
+import com.recargapay.wallet.helper.JsonHelper;
 import com.recargapay.wallet.integration.http.corebanking.data.AccountInfoRsDTO;
 import com.recargapay.wallet.integration.http.corebanking.data.DefaultRsDTO;
 import com.recargapay.wallet.integration.http.corebanking.data.Status;
@@ -14,18 +15,14 @@ import com.recargapay.wallet.persistence.entity.TransactionStatus;
 import com.recargapay.wallet.persistence.entity.WalletStatus;
 import com.recargapay.wallet.usecase.data.CurrencyType;
 import jakarta.annotation.PostConstruct;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.support.GenericMessage;
-import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -33,10 +30,8 @@ import java.util.UUID;
 import static com.recargapay.wallet.integration.http.corebanking.MockCoreBankingClientImpl.Error.ALIAS_EXIST;
 import static com.recargapay.wallet.integration.http.corebanking.MockCoreBankingClientImpl.Error.ALIAS_NOT_EXIST_FOR_CASH_IN;
 import static com.recargapay.wallet.integration.http.corebanking.MockCoreBankingClientImpl.Error.BLACK_LISTED_USER;
-import static com.recargapay.wallet.integration.http.corebanking.MockCoreBankingClientImpl.Error.CVU_NOT_EXIST_FOR_CASH_IN;
 import static com.recargapay.wallet.integration.http.corebanking.data.AccountInfoRsDTO.BankAccountType.CBU;
 import static com.recargapay.wallet.integration.http.corebanking.data.AccountInfoRsDTO.BankAccountType.CVU;
-import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 
 @RequiredArgsConstructor
@@ -44,10 +39,10 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
     private static final int CVBU_LENGTH = 22;
     private static final Random RANDOM = new Random();
     private static final Set<UUID> blackListUsers = Set.of(UUID.fromString("4cea3c10-4c50-4c36-a7bc-ba17ec1a3f9c"));
-    private static final String ALIAS_ERROR_OUT = "test.error.out";
-    private static final HashMap<String, AccountInfoRsDTO> existingAccountByAlias = new HashMap<>();
+    private static final String ALIAS_ERROR_WDRL = "test.error.out";
     private final RedisLockManager redisLockManager;
     private final SqsService sqsService;
+    private final JsonHelper jsonHelper;
     @Value("${sqs.cvu-created.name}")
     private String cvuCreatedSqsName;
     @Value("${sqs.deposit-arrive.name}")
@@ -55,9 +50,8 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
     @Value("${sqs.withdrawal-complete.name}")
     private String withdrawalCompleteSqsName;
 
-    private final static String ALIAS_TEMPLATE = "ALIAS_USED::%s";
-    private final static String CVBU_TEMPLATE = "CVBU_USED::%s";
-    private final static String CVBU_BY_ALIAS_TEMPLATE = "CVBU_BY_ALIAS::%s";
+    private final static String ACCOUNT_BY_ALIAS = "ALIAS::%s";
+    private final static String ACCOUNT_BY_CVBU = "CVBU::%s";
     private final static String RECARCAPAY_CBU = "2850590940090418135201";
 
     @SneakyThrows
@@ -67,7 +61,7 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
         CvuCreatedDTO dtoToSend;
         if (blackListUsers.contains(userId)) {
             dtoToSend = cvuCreatedBlacklistedByBcra(userId, currency);
-        } else if (!canUseAlias(alias)) {
+        } else if (existAlias(alias)) {
             return createErrorRs(ALIAS_EXIST);
         } else {
             val cvu = generateUniqueCVBU(alias, true, true);
@@ -82,10 +76,7 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
         if (!existAlias(rq.destinationAlias())) {
             return createErrorRs(ALIAS_NOT_EXIST_FOR_CASH_IN);
         }
-        val cvu = getCvuBy(rq.destinationAlias());
-        if (isNull(cvu)) {
-            return createErrorRs(CVU_NOT_EXIST_FOR_CASH_IN);
-        }
+        val cvu = getAccountByAlias(rq.destinationAlias()).cvbu();
         val msj = new DepositArrivedDTO(rq.destinationAlias(), cvu, rq.amount(), rq.sourceCvu(), rq.sourceCbu(), rq.externalTxId());
         sqsService.doEnqueue(depositArriveSqsName, new GenericMessage<>(msj));
         return createOkRs();
@@ -96,14 +87,14 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
     @Override
     public DefaultRsDTO withdrawal(String sourceCvu, UUID txId, String destinationCvbu, BigDecimal amount) {
         Thread.sleep(2000);//simulate work
-        val destinationAccount = infoByCvbu(destinationCvbu);
+        val destinationAccount = getAccountByCvbu(destinationCvbu);
         if (Status.ERROR == destinationAccount.status()) {
             return createErrorRs(Error.UNEXPECTED);
         }
         val externalTxId = "external-tx-%s".formatted(redisLockManager.getNextWithdrawalNumber());
         CoreBankingError error = null;
         TransactionStatus transactionStatus = TransactionStatus.COMPLETED;
-        if (ALIAS_ERROR_OUT.equals(destinationAccount.alias())) {//simulate error
+        if (ALIAS_ERROR_WDRL.equals(destinationAccount.alias())) {//simulate error
             error = new CoreBankingError(Error.BANK_ERROR_WITHDRAWAL.details, Error.BANK_ERROR_WITHDRAWAL.code);
             transactionStatus = TransactionStatus.FAILED;
         }
@@ -120,24 +111,17 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
 
     @Override
     public AccountInfoRsDTO infoByAlias(String alias) {
-        return ofNullable(existingAccountByAlias.get(alias))
+        return ofNullable(getAccountByAlias(alias))
                 .orElse(new AccountInfoRsDTO(null, null, null, Status.ERROR, null));
     }
 
     @Override
     public AccountInfoRsDTO infoByCvbu(String cvbu) {
-        return existingAccountByAlias.values().stream()
-                .filter(info -> info.cvbu().equals(cvbu))
-                .findAny()
+        return ofNullable(getAccountByCvbu(cvbu))
                 .orElse(new AccountInfoRsDTO(null, null, null, Status.ERROR, null));
     }
 
     //private methods
-
-    private String getCvuBy(@NotBlank String alias) {
-        val aliasKey = CVBU_BY_ALIAS_TEMPLATE.formatted(alias);
-        return redisLockManager.getValue(aliasKey);
-    }
 
     private static DefaultRsDTO createErrorRs(Error error) {
         return new DefaultRsDTO(
@@ -171,23 +155,11 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
                 userId);
     }
 
-    private boolean canUseAlias(String alias) {
-        val aliasKey = ALIAS_TEMPLATE.formatted(alias);
-        return redisLockManager.setKeyValueIfNotExist(aliasKey);
-    }
-
-    private boolean existAlias(String alias) {
-        val aliasKey = ALIAS_TEMPLATE.formatted(alias);
-        return redisLockManager.hasKey(aliasKey);
-    }
-
     private String generateUniqueCVBU(String alias, boolean isCVU, boolean isRpUser) {
         String cvbu;
         do {
             cvbu = generateRandomCVBU();
-        } while (!redisLockManager.setKeyValueIfNotExist(CVBU_TEMPLATE.formatted(cvbu)));
-        redisLockManager.setKeyValueIfNotExist(CVBU_BY_ALIAS_TEMPLATE.formatted(alias), cvbu);
-        existingAccountByAlias.putIfAbsent(alias, new AccountInfoRsDTO(cvbu, alias, isCVU ? CVU : CBU, Status.OK, isRpUser));
+        } while (!putAccountIfAbsent(alias, cvbu, isCVU ? CVU : CBU, Status.OK, isRpUser));
         return cvbu;
     }
 
@@ -217,25 +189,41 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
         }
     }
 
+    private boolean putAccountIfAbsent(String alias, String cvbu, AccountInfoRsDTO.BankAccountType bankAccountType, Status status, boolean isRpUser) {
+        val accountInfoRsDTO = new AccountInfoRsDTO(cvbu, alias, bankAccountType, status, isRpUser);
+        val objString = jsonHelper.serialize(accountInfoRsDTO);
+        val aliasKey = ACCOUNT_BY_ALIAS.formatted(alias);
+        redisLockManager.setKeyValueIfNotExist(aliasKey, objString);
+        return redisLockManager.setKeyValueIfNotExist(ACCOUNT_BY_CVBU.formatted(cvbu), alias);
+    }
+
+    private boolean existAlias(String alias) {
+        return redisLockManager.hasKey(ACCOUNT_BY_ALIAS.formatted(alias));
+    }
+
+    private AccountInfoRsDTO getAccountByAlias(String alias) {
+        val objString = redisLockManager.getValue(ACCOUNT_BY_ALIAS.formatted(alias));
+        return ofNullable(objString).map(obj -> jsonHelper.parse(obj, AccountInfoRsDTO.class))
+                .orElse(null);
+    }
+
+    private AccountInfoRsDTO getAccountByCvbu(String cvbu) {
+        val aliasKey = redisLockManager.getValue(ACCOUNT_BY_CVBU.formatted(cvbu));
+        return ofNullable(aliasKey)
+                .map(obj -> getAccountByAlias(aliasKey))
+                .orElse(null);
+    }
+
     @PostConstruct
     private void init() {
-        // Preloaded accounts inside RecargaPay (expected to already exist in Redis)
-        val alias1 = "test.1ars.rp";
-        val alias2 = "test.1usd.rp";
-        val cvuCbu1 = redisLockManager.getValue(CVBU_BY_ALIAS_TEMPLATE.formatted(alias1));
-        val cvuCbu2 = redisLockManager.getValue(CVBU_BY_ALIAS_TEMPLATE.formatted(alias2));
-        Assert.isTrue(ObjectUtils.allNotNull(cvuCbu1, cvuCbu2), "cvu/cbu not exist, init error");
-        existingAccountByAlias.putIfAbsent(alias1, new AccountInfoRsDTO(cvuCbu1, alias1, CVU, Status.OK, true));
-        existingAccountByAlias.putIfAbsent(alias2, new AccountInfoRsDTO(cvuCbu2, alias2, CVU, Status.OK, true));
         // New external accounts (CVUs/CBUs are generated dynamically)
-        val alias3 = "test.1ars.out";
-        generateUniqueCVBU(alias3, false, false);
-        val alias4 = "test.1usd.out";
-        generateUniqueCVBU(alias4, false, false);
-        val alias5 = "test.2ars.out";
-        generateUniqueCVBU(alias5, false, false);
-        val alias6 = "test.2usd.out";
-        generateUniqueCVBU(alias6, false, false);
-        generateUniqueCVBU(ALIAS_ERROR_OUT, false, false);
+        generateUniqueCVBU("test.1ars.out", false, false);
+        generateUniqueCVBU("test.2ars.out", false, false);
+        generateUniqueCVBU("test.3ars.out", false, false);
+        generateUniqueCVBU("test.4ars.out", false, false);
+        generateUniqueCVBU("test.5ars.out", false, false);
+        generateUniqueCVBU("test.6ars.out", false, false);
+        generateUniqueCVBU("test.7ars.out", false, false);
+        generateUniqueCVBU(ALIAS_ERROR_WDRL, false, false);
     }
 }
