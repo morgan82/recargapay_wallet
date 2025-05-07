@@ -30,11 +30,13 @@ This repository contains the implementation of a wallet microservice that suppor
 git clone https://github.com/<your-username>/recargapay_wallet.git
 cd recargapay_wallet
 ```
+
 ### 2. Build the Docker image
 
 ```bash
 ./mvnw clean spring-boot:build-image -Dspring-boot.build-image.imageName=recargapay/wallet-service
 ```
+
 ### 3. Start the environment using Docker
 
 ```bash
@@ -70,11 +72,16 @@ Started RecargapayWalletApplication
 - **Validation strategy**: DTOs and use cases leverage Spring’s validation annotations.
 - **API documentation**: Swagger/OpenAPI integrated via springdoc.
 
+## System Architecture
+
+![img.png](img.png)
+
 ## Trade-offs and Time Constraints
 
 - **Mocked integrations**: CoreBanking and Notification systems were stubbed for simplicity.
 - **Simplified error handling**: Responses use `ProblemDetail`, but without localization or error codes.
 - **No authentication**: Auth concerns were omitted to focus on functional requirements.
+- **Integration tests**: Due to time constraints, integration tests were not implemented using TestContainers. Instead, a [Postman Collection](./support/postman_collection/wallet-recargapay.postman_collection.json) was included to manually run and verify the main workflows.
 
 ## Project Structure
 
@@ -87,9 +94,11 @@ com.recargapay.wallet
 ├── usecase              # Business logic
 ├── persistence.entity   # JPA entities
 ├── persistence.service  # DB access logic
-├── integration          # Adapters for Redis, SQS, and external APIs
 ├── mapper               # DTO mapping
+├── integration          # Adapters for Redis, SQS, and external APIs
+    └── http.corebanking # Core Banking Integration
 ```
+
 ## Core Banking Integration
 
 The solution is designed around the concept of a **dedicated core banking subsystem**, responsible for handling all operations that interact with banking infrastructure. This subsystem encapsulates:
@@ -100,13 +109,6 @@ The solution is designed around the concept of a **dedicated core banking subsys
 - **Information lookups** by alias or CVU/CBU
 - **Asynchronous communication** using **Amazon SQS**, emitting relevant events (e.g., deposit confirmed, withdrawal completed)
 
-This design isolates banking responsibilities from the wallet business logic, enabling:
-- Better scalability and modularity
-- Easy mocking and simulation in local environments (e.g., via `MockCoreBankingClientImpl`)
-- Decoupled integration with real-world banking APIs
-
-All communication with this subsystem happens through a clean interface (`CoreBankingClient`) with implementations that can vary between real and mock clients, depending on the runtime profile or testing scenario.
-
 ## Utility Endpoints
 
 The `UtilsController` provides auxiliary endpoints that are **not part of the main wallet flow**, but serve specific purposes for testing, observability, and support during development.
@@ -116,20 +118,23 @@ The `UtilsController` provides auxiliary endpoints that are **not part of the ma
 - **Simulated Deposits**  
   The `/utils/simulate/deposit` endpoint allows manual simulation of incoming deposits for development or test environments. In production, these deposits would typically be delivered asynchronously through the `deposit-arrived` SQS queue from the CoreBanking subsystem.
 
-- **Account Listing by Alias**  
-  The `/utils/account-by-alias` endpoint retrieves all provisioned accounts (CVU/CBU), with optional filtering by Recargapay-managed (`isRpUser`) accounts.  
-  Useful for debugging and observing CVU/alias provisioning during wallet creation.
+  **Important:** Each simulated deposit must use a **unique `external_tx_id`**. If the same `external_tx_id` is used more than once, the deposit will be **ignored** as a duplicate event.
 
-### Example Account Structure
+- **Account Listing by Alias**  
+  The `/utils/account-by-alias` endpoint retrieves all provisioned accounts (CVU/CBU), with optional filtering by Recargapay-managed (`isRpUser`) accounts. Useful for debugging and observing CVU/alias provisioning during wallet creation.
+
+**Example Payload for Simulated Deposit:**
 
 ```json
 {
-  "cvbu": "0000003100000000000001",
-  "alias": "test.1ars.rp",
-  "bank_account_yype": "CVU",
-  "is_rp_user": true
+  "amount": 500000,
+  "destination_alias": "test.1ars.rp",
+  "source_cbu": "2850590940090418135201",
+  "source_cvu": null,
+  "external_tx_id": "00000-00001"
 }
 ```
+
 ## Database Connection
 
 The service connects to a local MySQL instance configured as follows:
