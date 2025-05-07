@@ -1,0 +1,668 @@
+{
+	"info": {
+		"_postman_id": "a42425bc-db7b-4e88-8e23-540e14a1c888",
+		"name": "wallet-recargapay",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "616926",
+		"_collection_link": "https://lunar-space-592554.postman.co/workspace/0fdea634-3345-4f34-af42-329cc1f7b7b9/collection/616926-a42425bc-db7b-4e88-8e23-540e14a1c888?action=share&source=collection_link&creator=616926"
+	},
+	"item": [
+		{
+			"name": "wallet",
+			"item": [
+				{
+					"name": "new-wallet-for-user-lGomez",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();",
+									"console.log(response);",
+									"",
+									"pm.test(\"Response status code is 201\", function () {",
+									"  pm.response.to.have.status(201);",
+									"  pm.collectionVariables.set(\"gomez-wallet-uuid\", response.id);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"5e62c324-ab6b-496a-a310-efc53c30fe39\",\n  \"currency\": \"ARS\",\n  \"alias\": \"test.2ars.rp\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/wallet",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wallet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "new-wallet-fot-user-aFernandez",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();",
+									"console.log(response);",
+									"",
+									"pm.test(\"Response status code is 201\", function () {",
+									"  pm.response.to.have.status(201);",
+									"  pm.collectionVariables.set(\"fernandez-wallet-uuid\", response.id);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"f6d5c550-6bfd-4dc6-95a8-9a4661efcf1f\",\n  \"currency\": \"ARS\",\n  \"alias\": \"test.3ars.rp\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/wallet",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wallet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-lopez-wallet",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/wallet/d349b326-2840-428b-8f56-1e95fe622db7",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wallet",
+								"d349b326-2840-428b-8f56-1e95fe622db7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-gomez-wallet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();",
+									"console.log(response);",
+									"",
+									"",
+									"pm.test(\"Response status code is 201\", function () {",
+									"  pm.response.to.have.status(200);",
+									"  pm.collectionVariables.set(\"gomez-cvu\", response.cvu);",
+									"   pm.collectionVariables.set(\"gomez-alias\", response.alias);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/wallet/{{gomez-wallet-uuid}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wallet",
+								"{{gomez-wallet-uuid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-fernandez-wallet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();",
+									"console.log(response.id);",
+									"pm.test(\"Response status code is 201\", function () {",
+									"  pm.response.to.have.status(200);",
+									"  pm.collectionVariables.set(\"fernandez-cvu\", response.cvu);",
+									"pm.collectionVariables.set(\"fernandez-alias\", response.alias);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/wallet/{{fernandez-wallet-uuid}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wallet",
+								"{{fernandez-wallet-uuid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "deposit",
+			"item": [
+				{
+					"name": "new-deposit2lopez",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 1,\n  \"destination_alias\": \"test.1ars.rp\",\n  \"source_cbu\": \"2850590940090418135201\",\n  \"source_cvu\": null,\n  \"external_tx_id\": \"00000-00002\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/utils/simulate/deposit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"utils",
+								"simulate",
+								"deposit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "new-deposit2lopez_CVU_CBU_error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();",
+									"console.log(response);",
+									"",
+									"pm.test(\"Response status code is 400\", function () {",
+									"",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 1,\n  \"destination_alias\": \"test.1ars.rp\",\n  \"source_cbu\": \"2850590940090418135201\",\n  \"source_cvu\": \"2850590940090418135201\",\n  \"external_tx_id\": \"00000-00001\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/utils/simulate/deposit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"utils",
+								"simulate",
+								"deposit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "new-deposit2gomez",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 1,\n  \"destination_alias\": \"{{gomez-alias}}\",\n  \"source_cbu\": \"sdfsdf\",\n  \"external_tx_id\": \"00000-00001\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/utils/simulate/deposit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"utils",
+								"simulate",
+								"deposit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "new-deposit2fernandez",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 1,\n  \"destination_alias\": \"{{fernandez-alias}}\",\n  \"source_cbu\": \"{{fernandez-cvu}}\",\n  \"external_tx_id\": \"00000-00001\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/utils/simulate/deposit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"utils",
+								"simulate",
+								"deposit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "new-deposit2lopez_CVU_CBU_error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();",
+									"console.log(response);",
+									"",
+									"pm.test(\"Response status code is 400\", function () {",
+									"",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 1,\n  \"destination_alias\": \"test.1ars.rp\",\n  \"source_cbu\": \"2850590940090418135201\",\n  \"source_cvu\": \"2850590940090418135201\",\n  \"external_tx_id\": \"00000-00001\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/utils/simulate/deposit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"utils",
+								"simulate",
+								"deposit"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "transfer",
+			"item": [
+				{
+					"name": "new-transfer-lopez2gomez",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"destination_wallet_id\": \"{{gomez-wallet-uuid}}\",\n  \"transfer_amount\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/wallet/d349b326-2840-428b-8f56-1e95fe622db7/transfer",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wallet",
+								"d349b326-2840-428b-8f56-1e95fe622db7",
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "withdrawals",
+			"item": [
+				{
+					"name": "new-withdrawal-lopez2gomez",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"destination_alias\": \"{{gomez-alias}}\",\n  \"destination_cvu_cbu\": null,\n  \"withdrawal_amount\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/wallet/d349b326-2840-428b-8f56-1e95fe622db7/withdrawal",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wallet",
+								"d349b326-2840-428b-8f56-1e95fe622db7",
+								"withdrawal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "new-withdrawal-lopez2erroraccount",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"destination_alias\": \"test.error.out\",\n  \"destination_cvu_cbu\": \"\",\n  \"withdrawal_amount\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/wallet/d349b326-2840-428b-8f56-1e95fe622db7/withdrawal",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wallet",
+								"d349b326-2840-428b-8f56-1e95fe622db7",
+								"withdrawal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "new-withdrawal-lopez2randomvalid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"destination_alias\": \"test.5ars.out\",\n  \"destination_cvu_cbu\": null,\n  \"withdrawal_amount\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/wallet/d349b326-2840-428b-8f56-1e95fe622db7/withdrawal",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wallet",
+								"d349b326-2840-428b-8f56-1e95fe622db7",
+								"withdrawal"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "accounts",
+			"item": [
+				{
+					"name": "accounts2withrawal",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/utils/account-by-alias",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"utils",
+								"account-by-alias"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "historical_balance",
+			"item": [
+				{
+					"name": "historical_lopez",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/wallet/d349b326-2840-428b-8f56-1e95fe622db7/historical-balance?at=2025-05-07T18%3A47%3A26",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wallet",
+								"d349b326-2840-428b-8f56-1e95fe622db7",
+								"historical-balance"
+							],
+							"query": [
+								{
+									"key": "at",
+									"value": "2025-05-07T18%3A47%3A26"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "gomez-wallet-uuid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "fernandez-wallet-uuid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "gomez-cvu",
+			"value": ""
+		},
+		{
+			"key": "fernandez-cvu",
+			"value": ""
+		},
+		{
+			"key": "gomez-alias",
+			"value": ""
+		},
+		{
+			"key": "fernandez-alias",
+			"value": ""
+		}
+	]
+}
