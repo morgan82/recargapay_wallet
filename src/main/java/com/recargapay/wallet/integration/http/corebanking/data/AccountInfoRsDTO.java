@@ -1,6 +1,5 @@
 package com.recargapay.wallet.integration.http.corebanking.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Objects;
@@ -9,7 +8,6 @@ public record AccountInfoRsDTO(
         String cvbu,
         String alias,
         BankAccountType bankAccountType,
-        @JsonIgnore
         Status status,
         @Schema(description = "Indicates whether the account belongs to RecargaPay (true) or is external (false)")
         Boolean isRpUser

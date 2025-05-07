@@ -42,7 +42,7 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
     private static final Random RANDOM = new Random();
     private static final Set<UUID> blackListUsers = Set.of(UUID.fromString("4cea3c10-4c50-4c36-a7bc-ba17ec1a3f9c"));
     private static final String ALIAS_ERROR_WDRL = "test.error.out";
-    private static final int TIME_SIMULATE_WORKING = 5000;
+    private static final int TIME_SIMULATE_WORKING = 3000;
     private final RedisLockManager redisLockManager;
     private final SqsService sqsService;
     private final JsonHelper jsonHelper;

@@ -130,6 +130,23 @@ The `UtilsController` provides auxiliary endpoints that are **not part of the ma
   "is_rp_user": true
 }
 ```
+## Database Connection
+
+The service connects to a local MySQL instance configured as follows:
+
+- **Host**: `localhost`
+- **Port**: `3306`
+- **Database name**: `recargapay`
+- **Username**: `root`
+- **Password**: `verysecret`
+
+### JDBC Connection URL
+
+```
+jdbc:mysql://localhost:3306/recargapay?allowPublicKeyRetrieval=true&useSSL=false
+```
+
+The schema is initialized automatically using scripts in the `support/docker/config/script` directory when using Docker Compose.
 
 ## Author
 
