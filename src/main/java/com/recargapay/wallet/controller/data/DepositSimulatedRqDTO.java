@@ -17,6 +17,7 @@ public record DepositSimulatedRqDTO(
         String sourceCvu,
         String sourceCbu,
         @NotBlank
+        @Schema(description = "Must be unique for each deposit; if repeated, the operation will be skipped.")
         String externalTxId
 ) {
 }

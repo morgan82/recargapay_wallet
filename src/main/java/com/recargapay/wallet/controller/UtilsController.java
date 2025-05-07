@@ -43,10 +43,10 @@ public class UtilsController {
                     examples = @ExampleObject(
                             value = """
                                     {
-                                        "destination_cvu": null,
                                         "amount": 500000,
                                         "destination_alias": "test.1ars.rp",
                                         "source_cbu": "2850590940090418135201",
+                                        "source_cvu": null,
                                         "external_tx_id": "00000-00001"
                                     }
                                     """
