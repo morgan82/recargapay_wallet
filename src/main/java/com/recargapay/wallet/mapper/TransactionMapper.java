@@ -10,6 +10,7 @@ import com.recargapay.wallet.persistence.entity.TransactionStatus;
 import com.recargapay.wallet.persistence.entity.TransactionType;
 import com.recargapay.wallet.persistence.entity.Wallet;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -23,7 +24,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR,
         imports = {UUID.class, TransactionStatus.class, AccountType.class, TransactionType.class})
 public interface TransactionMapper {
-
+    String EXTRA_INFO_TEMPLATE = "Error, code:%s, message:%s";
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "extraInfo", ignore = true)
@@ -97,6 +98,10 @@ public interface TransactionMapper {
     default void updateWithdrawal(Transaction txWithdrawal, WithdrawalCompleteDTO dto) {
         txWithdrawal.setStatus(dto.transactionStatus());
         txWithdrawal.setExternalTxId(dto.externalTxId());
+        if (TransactionStatus.FAILED == dto.transactionStatus()) {
+            val error = dto.coreBankingError();
+            txWithdrawal.setExtraInfo(buildExtraInfo(error.code(), error.details()));
+        }
     }
 
     @Mapping(target = "destinationWalletId", expression = "java(UUID.fromString(sourceTx.getDestinationAccountId()))")
@@ -136,5 +141,9 @@ public interface TransactionMapper {
             case CVU -> AccountType.BANK_CVU;
             case CBU -> AccountType.BANK_CBU;
         };
+    }
+
+    default String buildExtraInfo(String code, String details) {
+        return StringUtils.truncate(EXTRA_INFO_TEMPLATE.formatted(code, details), 300);
     }
 }

@@ -30,6 +30,12 @@ public class WalletService {
                 .orElseThrow(() -> new WalletException("Wallet %s not found".formatted(uuid), HttpStatus.BAD_REQUEST, true));
     }
 
+    public Wallet fetchActiveWalletByOrThrow(UUID uuid) {
+        return walletRepository.getActiveByUuid(uuid)
+                .orElseThrow(() -> new WalletException("Wallet %s not valid".formatted(uuid), HttpStatus.BAD_REQUEST, true));
+    }
+
+
     public Optional<Wallet> fetchPendingWalletBy(UUID userUuid, CurrencyType currency) {
         return walletRepository.getPendingBy(userUuid, currency.name());
     }

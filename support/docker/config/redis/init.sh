@@ -7,12 +7,11 @@ done
 
 echo "Redis is up. Initializing keys..."
 
-redis-cli -h redis -p 6379 set CVBU_BY_ALIAS::test.1ars.rp "7010576316851312771347"
-redis-cli -h redis -p 6379 set CVBU_USED::7010576316851312771347 "LOCKED"
-redis-cli -h redis -p 6379 set ALIAS_USED::test.1ars.rp "LOCKED"
+redis-cli -h redis -p 6379 set ALIAS::test.1ars.rp "{\"cvbu\":\"7010576316851312771347\",\"alias\":\"test.1ars.rp\",\"bank_account_type\":\"CVU\",\"status\":\"OK\",\"is_rp_user\":true}"
+redis-cli -h redis -p 6379 set CVBU::7010576316851312771347 "test.1ars.rp"
 
-redis-cli -h redis -p 6379 set CVBU_BY_ALIAS::test.1usd.rp "7991612183721723346815"
-redis-cli -h redis -p 6379 set CVBU_USED::7991612183721723346815 "LOCKED"
-redis-cli -h redis -p 6379 set ALIAS_USED::test.1usd.rp "LOCKED"
+#redis-cli -h redis -p 6379 set ALIAS::test.1usd.rp "{\"cvbu\":\"7991612183721723346815\",\"alias\":\"test.1usd.rp\",\"bank_account_type\":\"CVU\",\"status\":\"OK\",\"is_rp_user\":true}"
+#redis-cli -h redis -p 6379 set CVBU::7991612183721723346815 "test.1usd.rp"
+
 
 echo "Redis initialization complete."

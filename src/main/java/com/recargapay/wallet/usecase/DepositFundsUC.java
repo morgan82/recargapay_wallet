@@ -8,24 +8,27 @@ import com.recargapay.wallet.persistence.entity.TransactionStatus;
 import com.recargapay.wallet.persistence.entity.Wallet;
 import com.recargapay.wallet.persistence.service.TransactionService;
 import com.recargapay.wallet.persistence.service.WalletService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Service
 @AllArgsConstructor
 @Slf4j
+@Validated
 public class DepositFundsUC {
     private WalletService walletService;
     private TransactionService transactionService;
     private final NotificationService notificationService;
 
     @Transactional
-    public void processDeposit(DepositArrivedDTO dto) {
+    public void processDeposit(@Valid DepositArrivedDTO dto) {
         val wallet = walletService.fetchActiveWalletBy(dto.destinationCvu(), dto.destinationAlias())
                 .orElseThrow(() -> new WalletException("There is no active wallet for the given destinationAlias or CVU", INTERNAL_SERVER_ERROR, false));
         val txOptional = transactionService.saveDeposit(dto, wallet);

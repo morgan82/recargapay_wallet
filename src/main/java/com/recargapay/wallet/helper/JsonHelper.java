@@ -1,7 +1,6 @@
 package com.recargapay.wallet.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,16 +28,12 @@ public class JsonHelper {
         }
     }
 
-    public <T> ObjectNode parse(T source) {
+    public <T> T parse(String source, Class<T> clazz) {
         try {
-            return this.objectMapper.valueToTree(source);
+            return this.objectMapper.readValue(source, clazz);
         } catch (Exception e) {
             log.error("Error parsing object: {}", source, e);
             return null;
         }
-    }
-
-    public ObjectNode createObjectNode() {
-        return this.objectMapper.createObjectNode();
     }
 }
