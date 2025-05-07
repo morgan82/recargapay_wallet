@@ -107,6 +107,30 @@ This design isolates banking responsibilities from the wallet business logic, en
 
 All communication with this subsystem happens through a clean interface (`CoreBankingClient`) with implementations that can vary between real and mock clients, depending on the runtime profile or testing scenario.
 
+## Utility Endpoints
+
+The `UtilsController` provides auxiliary endpoints that are **not part of the main wallet flow**, but serve specific purposes for testing, observability, and support during development.
+
+### Features
+
+- **Simulated Deposits**  
+  The `/utils/simulate/deposit` endpoint allows manual simulation of incoming deposits for development or test environments. In production, these deposits would typically be delivered asynchronously through the `deposit-arrived` SQS queue from the CoreBanking subsystem.
+
+- **Account Listing by Alias**  
+  The `/utils/account-by-alias` endpoint retrieves all provisioned accounts (CVU/CBU), with optional filtering by Recargapay-managed (`isRpUser`) accounts.  
+  Useful for debugging and observing CVU/alias provisioning during wallet creation.
+
+### Example Account Structure
+
+```json
+{
+  "cvbu": "0000003100000000000001",
+  "alias": "test.1ars.rp",
+  "bank_account_yype": "CVU",
+  "is_rp_user": true
+}
+```
+
 ## Author
 
 Leo Morganti – [linkedin.com/in/leomorganti](https://www.linkedin.com/in/leonardo-morganti-47045b103/)
