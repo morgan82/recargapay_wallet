@@ -212,7 +212,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"amount\": 2,\n  \"destination_alias\": \"test.1ars.rp\",\n  \"source_cbu\": \"2850590940090418135201\",\n  \"source_cvu\": null,\n  \"external_tx_id\": \"00000-00003\"\n}\n",
+							"raw": "{\n  \"amount\": 2,\n  \"destination_alias\": \"test.1ars.rp\",\n  \"source_cbu\": \"2850590940090418135201\",\n  \"source_cvu\": null,\n  \"external_tx_id\": \"{{$randomBankAccountIban}}\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -289,7 +289,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"amount\": 1,\n  \"destination_alias\": \"{{gomez-alias}}\",\n  \"source_cbu\": \"sdfsdf\",\n  \"external_tx_id\": \"00000-00001\"\n}",
+							"raw": "{\n  \"amount\": 1,\n  \"destination_alias\": \"{{gomez-alias}}\",\n  \"source_cbu\": \"sdfsdf\",\n  \"external_tx_id\": \"{{$randomBankAccountIban}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -319,54 +319,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"amount\": 1,\n  \"destination_alias\": \"{{fernandez-alias}}\",\n  \"source_cbu\": \"{{fernandez-cvu}}\",\n  \"external_tx_id\": \"00000-00001\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/utils/simulate/deposit",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"utils",
-								"simulate",
-								"deposit"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "new-deposit2lopez_CVU_CBU_error",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"let response = pm.response.json();",
-									"console.log(response);",
-									"",
-									"pm.test(\"Response status code is 400\", function () {",
-									"",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"amount\": 1,\n  \"destination_alias\": \"test.1ars.rp\",\n  \"source_cbu\": \"2850590940090418135201\",\n  \"source_cvu\": \"2850590940090418135201\",\n  \"external_tx_id\": \"00000-00001\"\n}\n",
+							"raw": "{\n  \"amount\": 1,\n  \"destination_alias\": \"{{fernandez-alias}}\",\n  \"source_cbu\": \"{{fernandez-cvu}}\",\n  \"external_tx_id\": \"{{$randomBankAccountIban}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -722,7 +675,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/wallet/d349b326-2840-428b-8f56-1e95fe622db7/historical-balance?at=2025-05-07T18%3A47%3A26",
+							"raw": "http://localhost:8080/wallet/d349b326-2840-428b-8f56-1e95fe622db7/historical-balance?at=2025-05-07T21%3A28%3A18",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -736,7 +689,7 @@
 							"query": [
 								{
 									"key": "at",
-									"value": "2025-05-07T18%3A47%3A26"
+									"value": "2025-05-07T21%3A28%3A18"
 								}
 							]
 						}
