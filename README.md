@@ -64,6 +64,28 @@ Started RecargapayWalletApplication
 ./mvnw clean test
 ```
 
+This runs **unit and controller tests** using `MockMvc`, `Mockito`, and Spring Boot's `@WebMvcTest`.
+
+### ❗ Test Limitations (Time Constraint)
+
+Due to time constraints, the following areas were **not covered**:
+
+- **Integration tests** with real infrastructure (e.g., using TestContainers)
+- **Code coverage reports** (e.g., via JaCoCo or PIT)
+- **End-to-end tests** for full async SQS flows
+
+To partially mitigate this, a [Postman Collection](./support/postman_collection/wallet-recargapay.postman_collection.json) is included, which can be used to **manually verify**:
+
+- Wallet creation
+- Transfers
+- Withdrawals
+- Deposit simulations
+- Validation errors and boundary cases
+
+## System Architecture
+
+![img.png](img.png)
+
 ## Design Decisions
 
 - **Hexagonal architecture**: Use cases are isolated from infrastructure for testability and scalability.
@@ -71,10 +93,6 @@ Started RecargapayWalletApplication
 - **SQS simulation**: LocalStack is used to emulate asynchronous events like deposits, withdrawals, and CVU provisioning.
 - **Validation strategy**: DTOs and use cases leverage Spring’s validation annotations.
 - **API documentation**: Swagger/OpenAPI integrated via springdoc.
-
-## System Architecture
-
-![img.png](img.png)
 
 ## Trade-offs and Time Constraints
 
@@ -88,7 +106,7 @@ Started RecargapayWalletApplication
 ```
 com.recargapay.wallet
 ├── config               # All @Configuration classes
-├── exception            # Error Hanlers and custom Exceptions
+├── exception            # Error Handlers and custom Exceptions
 ├── helper               # JSON helper for serialize and deserialize JSON
 ├── controller           # REST endpoints
 ├── usecase              # Business logic
