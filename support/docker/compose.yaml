@@ -1,0 +1,79 @@
+services:
+  wallet-service-1:
+    image: recargapay/wallet-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      mysql:
+        condition: service_healthy
+      sqs-waiter:
+        condition: service_healthy
+
+  wallet-service-2:
+    image: recargapay/wallet-service
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      mysql:
+        condition: service_healthy
+      sqs-waiter:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0.34
+    environment:
+      - 'MYSQL_DATABASE=recargapay'
+      - 'MYSQL_PASSWORD=password'
+      - 'MYSQL_ROOT_PASSWORD=verysecret'
+      - 'MYSQL_USER=user'
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./config/script:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  redis-init:
+    image: redis:latest
+    depends_on:
+      - redis
+    entrypoint: [ "/bin/sh", "-c", "/init/init.sh" ]
+    volumes:
+      - ./config/redis:/init
+
+  sqs-waiter:
+    build:
+      context: .
+      dockerfile: Dockerfile.sqs-waiter
+    depends_on:
+      localstack:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "test", "-f", "/tmp/sqs_ready" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sqs,sns
+      - DEBUG=1
+      - LOCALSTACK_DISABLE_SSL=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/localstack:/etc/localstack/init/ready.d

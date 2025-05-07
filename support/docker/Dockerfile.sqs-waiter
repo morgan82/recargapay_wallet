@@ -1,0 +1,8 @@
+FROM python:3.11-slim
+
+RUN pip install awscli awscli-local
+
+COPY wait-for-sqs.sh /wait-for-sqs.sh
+RUN chmod +x /wait-for-sqs.sh
+
+CMD ["/wait-for-sqs.sh"]
