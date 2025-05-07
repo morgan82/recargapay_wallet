@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.support.GenericMessage;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -33,6 +34,7 @@ import static com.recargapay.wallet.integration.http.corebanking.MockCoreBanking
 import static com.recargapay.wallet.integration.http.corebanking.data.AccountInfoRsDTO.BankAccountType.CBU;
 import static com.recargapay.wallet.integration.http.corebanking.data.AccountInfoRsDTO.BankAccountType.CVU;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
 
 @RequiredArgsConstructor
 public class MockCoreBankingClientImpl implements CoreBankingClient {
@@ -40,6 +42,7 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
     private static final Random RANDOM = new Random();
     private static final Set<UUID> blackListUsers = Set.of(UUID.fromString("4cea3c10-4c50-4c36-a7bc-ba17ec1a3f9c"));
     private static final String ALIAS_ERROR_WDRL = "test.error.out";
+    private static final int TIME_SIMULATE_WORKING = 5000;
     private final RedisLockManager redisLockManager;
     private final SqsService sqsService;
     private final JsonHelper jsonHelper;
@@ -57,7 +60,7 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
     @SneakyThrows
     @Override
     public DefaultRsDTO createCvu(UUID userId, String alias, CurrencyType currency) {
-        Thread.sleep(2000);//simulate work
+        Thread.sleep(TIME_SIMULATE_WORKING);//simulate work
         CvuCreatedDTO dtoToSend;
         if (blackListUsers.contains(userId)) {
             dtoToSend = cvuCreatedBlacklistedByBcra(userId, currency);
@@ -86,7 +89,7 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
     @SneakyThrows
     @Override
     public DefaultRsDTO withdrawal(String sourceCvu, UUID txId, String destinationCvbu, BigDecimal amount) {
-        Thread.sleep(2000);//simulate work
+        Thread.sleep(TIME_SIMULATE_WORKING);//simulate work
         val destinationAccount = getAccountByCvbu(destinationCvbu);
         if (Status.ERROR == destinationAccount.status()) {
             return createErrorRs(Error.UNEXPECTED);
@@ -119,6 +122,16 @@ public class MockCoreBankingClientImpl implements CoreBankingClient {
     public AccountInfoRsDTO infoByCvbu(String cvbu) {
         return ofNullable(getAccountByCvbu(cvbu))
                 .orElse(new AccountInfoRsDTO(null, null, null, Status.ERROR, null));
+    }
+
+    @Override
+    public Map<String, AccountInfoRsDTO> listAccounts() {
+        val pattern = "ALIAS::*";
+        Map<String, String> allEntries = redisLockManager.getAllEntries(pattern);
+        return allEntries.entrySet().stream().collect(toMap(
+                Map.Entry::getKey,
+                entry -> jsonHelper.parse(entry.getValue(), AccountInfoRsDTO.class)
+        ));
     }
 
     //private methods

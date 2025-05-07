@@ -3,6 +3,7 @@ package com.recargapay.wallet.controller;
 import com.recargapay.wallet.controller.data.DepositSimulatedRqDTO;
 import com.recargapay.wallet.exception.WalletException;
 import com.recargapay.wallet.integration.http.corebanking.CoreBankingClient;
+import com.recargapay.wallet.integration.http.corebanking.data.AccountInfoRsDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -10,21 +11,25 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
 import java.util.Objects;
 
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @RestController
-@RequestMapping("/simulate")
+@RequestMapping("/utils")
 @AllArgsConstructor
-public class SimulateController {
+public class UtilsController {
     private final CoreBankingClient coreBankingClient;
 
-    @PostMapping("/deposit")
+    @PostMapping("/simulate/deposit")
     @Operation(
             summary = "Simulate a deposit (testing only)",
             description = """
@@ -60,5 +65,17 @@ public class SimulateController {
         }
     }
 
+    @GetMapping("/account-by-alias")
+    public Map<String, AccountInfoRsDTO> listCvbuByAlias(@RequestParam(value = "only_rp_account", required = false) Boolean onlyRPayAccount) {
+        val allAccounts = coreBankingClient.listAccounts();
+        if (onlyRPayAccount != null && onlyRPayAccount) {
+            return allAccounts.entrySet().stream()
+                    .filter(e -> e.getValue().isRpUser())
+                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        } else {
+            return allAccounts;
+        }
+
+    }
 
 }
